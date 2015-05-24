@@ -100,6 +100,8 @@ describe('Contract', function () {
 
       contract.validate(function (err) {
         assert.ok(err);
+        assert.equal(err.message, 'Contract failed: "bar" must be a number');
+        assert.equal(err.detail, 'at res.body.bar got [baz]');
         done();
       });
     });
@@ -121,6 +123,7 @@ describe('Contract', function () {
 
       contract.validate(function (err) {
         assert.ok(err);
+        assert.equal(err.message, 'Request failed: ESOCKETTIMEDOUT');
         done();
       });
     });
