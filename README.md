@@ -37,10 +37,7 @@ module.exports = new Contract({
   consumer: 'My Super Service',
   request: {
     method: 'GET',
-    url: 'https://api.github.com/users/robinjmurphy',
-    headers: {
-      'User-Agent': 'consumer-contracts'
-    }
+    url: 'https://api.github.com/users/robinjmurphy'
   },
   response: {
     statusCode: 200,
