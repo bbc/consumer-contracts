@@ -2,7 +2,7 @@
 
 > Consumer-driven contracts in JavaScript
 
-[Consumer-driven contracts](http://martinfowler.com/articles/consumerDrivenContracts.html) let you move fast _without_ breaking things. API consumers codify their expections of your service in an executable _contract_. This defines the type of response that they consider acceptable for a set of different requests. Contracts give you an insight into which parts of your API your clients depend on, and which parts can be changed without fear of breakages.
+[Consumer-driven contracts](http://martinfowler.com/articles/consumerDrivenContracts.html) let you move fast _without_ breaking things. API consumers codify their expections of your service in an executable _contract_. This defines the type of response that they expect for a given different request. Contracts give you an insight into which parts of your API clients depend on, and which parts can be changed without fear of breaking them.
 
 This project lets you write executable contracts in JavaScript. It uses [request](https://github.com/request/request) to make HTTP requests and [Joi](https://github.com/hapijs/joi) to validate API responses. Contracts are defined as JavaScript modules in a `contracts` directory at the root of your project and can be executed using the `consumer-contracts` tool.
 
