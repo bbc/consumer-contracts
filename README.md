@@ -34,9 +34,8 @@ var Joi = require('consumer-contracts').Joi;
 
 module.exports = new Contract({
   name: 'User API',
-  consumer: 'My Super Service',
+  consumer: 'My GitHub Service',
   request: {
-    method: 'GET',
     url: 'https://api.github.com/users/robinjmurphy'
   },
   response: {
