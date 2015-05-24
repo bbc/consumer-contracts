@@ -27,18 +27,17 @@
   "homepage": "https://github.com/robinjmurphy/consumer-contracts#readme",
   "dependencies": {
     "async": "^1.0.0",
-    "chai": "^2.3.0",
     "chalk": "^1.0.0",
     "commander": "^2.8.1",
     "debug": "^2.2.0",
     "joi": "^6.4.2",
     "lodash": "^3.9.1",
     "recursive-readdir": "^1.2.1",
-    "request": "^2.55.0",
-    "require-directory": "^2.1.0"
+    "request": "^2.55.0"
   },
   "devDependencies": {
     "mocha": "^2.2.5",
+    "chai": "^2.3.0",
     "nock": "^2.2.0"
   },
   "jshintConfig": {
