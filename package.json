@@ -1,0 +1,58 @@
+{
+  "name": "consumer-contracts",
+  "version": "1.0.0",
+  "description": "Consumer driven contracts for Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "lint": "jshint ."
+  },
+  "bin": {
+    "consumer-contracts": "./lib/cli.js"
+  },
+  "preferGlobal": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robinjmurphy/consumer-contracts.git"
+  },
+  "keywords": [
+    "consumer",
+    "contracts"
+  ],
+  "author": "robin@robinmurphy.co.uk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robinjmurphy/consumer-contracts/issues"
+  },
+  "homepage": "https://github.com/robinjmurphy/consumer-contracts#readme",
+  "dependencies": {
+    "async": "^1.0.0",
+    "chai": "^2.3.0",
+    "chalk": "^1.0.0",
+    "commander": "^2.8.1",
+    "debug": "^2.2.0",
+    "joi": "^6.4.2",
+    "lodash": "^3.9.1",
+    "recursive-readdir": "^1.2.1",
+    "request": "^2.55.0",
+    "require-directory": "^2.1.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.5",
+    "nock": "^2.2.0"
+  },
+  "jshintConfig": {
+    "quotmark": "single",
+    "unused": true,
+    "undef": true,
+    "node": true,
+    "globals": {
+      "describe": false,
+      "it": false,
+      "before": false,
+      "beforeEach": false,
+      "after": false,
+      "afterEach": false
+    }
+  }
+}
