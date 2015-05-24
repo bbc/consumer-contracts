@@ -6,6 +6,10 @@
 
 This project lets you write executable contracts in JavaScript. It uses [request](https://github.com/request/request) to make HTTP requests and [Joi](https://github.com/hapijs/joi) to validate API responses. Contracts are defined as JavaScript modules in a `contracts` directory at the root of your project and can be executed using the `consumer-contracts` tool.
 
+* [Getting started](#getting-started)
+* [Anatomy of a contract](#anatomy-of-a-contract)
+* [CLI](#cli)
+
 ## Getting started
 
 Install the `consumer-contracts` tool globally:
