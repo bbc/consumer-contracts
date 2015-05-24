@@ -2,7 +2,9 @@
 
 > Consumer-driven contracts in JavaScript
 
-[Consumer-driven contracts](http://martinfowler.com/articles/consumerDrivenContracts.html) let you move fast _without_ breaking things. API consumers codify their expections of your service in an executable _contract_. This defines the type of response that they expect for a given request. Contracts give you an insight into which parts of your API clients depend on, and which parts can be changed without fear of breaking them.
+[Consumer-driven contracts](http://martinfowler.com/articles/consumerDrivenContracts.html) let you move fast _without_ breaking things.
+
+API consumers codify their expections of your service in an executable _contract_. This defines the type of response that they expect for a given request. Contracts give you an insight into which parts of your API clients depend on, and which parts can be changed without fear of breaking them.
 
 This project lets you write executable contracts in JavaScript. It uses [request](https://github.com/request/request) to make HTTP requests and [Joi](https://github.com/hapijs/joi) to validate API responses. Contracts are defined as JavaScript modules in a `contracts` directory at the root of your project and can be executed using the `consumer-contracts` tool.
 
@@ -92,15 +94,15 @@ The `name` property appears in the output of the `consumer-contracts` tool and h
 The `request` property defines the HTTP request that the contract applies to. All of the [options supported by request](https://github.com/request/request#requestoptions-callback) are valid. This means you can specify headers and SSL configuration options (among other things) for a given request:
 
 ```js
-  request: {
-    method: 'GET',
-    url: 'https://exmaple.com/users/fred',
-    headers: {
-      Accept: 'text/xml'
-    },
-    cert: fs.readFileSync('/path/to/my/cert.crt'),
-    key: fs.readFileSync('/path/to/my/cert.key')
-  }
+request: {
+  method: 'GET',
+  url: 'https://exmaple.com/users/fred',
+  headers: {
+    Accept: 'text/xml'
+  },
+  cert: fs.readFileSync('/path/to/my/cert.crt'),
+  key: fs.readFileSync('/path/to/my/cert.key')
+}
 ```
 
 ### `response`
@@ -121,17 +123,17 @@ This means that any fields you choose to validate are _required_ by default. To 
 To require a specific HTTP status code, set the `statusCode` property to that value:
 
 ```js
-  response: {
-    statusCode: 200
-  }
+response: {
+  statusCode: 200
+}
 ```
 
 To allow a range of different status codes, you can use Joi's [`valid()`](https://github.com/hapijs/joi#anyvalidvalue---aliases-only-equal) function:
 
 ```js
-  response: {
-    statusCode: Joi.any().valid(200, 201, 202)
-  }
+response: {
+  statusCode: Joi.any().valid(200, 201, 202)
+}
 ```
 
 ### Validating the response headers
@@ -172,7 +174,7 @@ To validate all of the contracts in the `contracts` directory, type:
 consumer-contracts run
 ```
 
-This work recursively, which means you can keep the contracts for each of your consumers in a separate subdirectory.
+This works recursively, which means you can keep the contracts for each of your consumers in a separate subdirectory.
 
 To run a single contract, pass a filename to the `run` command:
 
