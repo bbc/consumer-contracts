@@ -49,7 +49,7 @@ module.exports = new Contract({
 });
 ```
 
-To validate the contract, run the following command within your project directory.
+To validate the contract, run the following command at the root of your project directory.
 
 ```
 consumer-contracts run
