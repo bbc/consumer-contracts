@@ -1,5 +1,7 @@
 # consumer-contracts
 
+[![Build Status](https://travis-ci.org/robinjmurphy/consumer-contracts.svg)](https://travis-ci.org/robinjmurphy/consumer-contracts)
+
 > Consumer-driven contracts in JavaScript
 
 [Consumer-driven contracts](http://martinfowler.com/articles/consumerDrivenContracts.html) let you move fast _without_ breaking things.
