@@ -42,6 +42,7 @@ module.exports = new Contract({
   name: 'User API',
   consumer: 'My GitHub Service',
   request: {
+    method: 'GET',
     url: 'https://api.github.com/users/robinjmurphy'
   },
   response: {
