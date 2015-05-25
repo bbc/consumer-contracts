@@ -121,7 +121,7 @@ request: {
 
 ### `response`
 
-The `response` object validates the response returned by your service. The entire object is treated as a [Joi](https://github.com/hapijs/joi) that validates the `res` object returned by `request`. This means that the response's status code, headers and JSON body can all be validated using Joi's flexible schema language. The following options are passed to Joi's [`validate()`](https://github.com/hapijs/joi#validatevalue-schema-options-callback) function:
+The `response` object validates the response returned by your service. The entire object is treated as a [Joi](https://github.com/hapijs/joi) schema that validates the `res` object returned by `request`. This means that the response's status code, headers and JSON body can all be validated using Joi's flexible schema language. The following options are passed to Joi's [`validate()`](https://github.com/hapijs/joi#validatevalue-schema-options-callback) function:
 
 ```js
 {
