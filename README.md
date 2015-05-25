@@ -64,6 +64,17 @@ consumer-contracts run
 
 You should see that the contract validates.
 
+```
+
+
+  ✓ My GitHub Service – User API
+
+
+  1 passing
+
+               
+```
+
 ## Anatomy of a contract
 
 Each contract contains four properties; `consumer`, `name`, `request` and `response`.
