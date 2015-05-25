@@ -1,6 +1,6 @@
 # consumer-contracts
 
-[![Build Status](https://travis-ci.org/robinjmurphy/consumer-contracts.svg)](https://travis-ci.org/robinjmurphy/consumer-contracts)
+[![Build Status](https://travis-ci.org/robinjmurphy/consumer-contracts.svg)](https://travis-ci.org/robinjmurphy/consumer-contracts) [![Code Climate](https://codeclimate.com/github/robinjmurphy/consumer-contracts/badges/gpa.svg)](https://codeclimate.com/github/robinjmurphy/consumer-contracts)
 
 > Consumer-driven contracts in JavaScript
 
