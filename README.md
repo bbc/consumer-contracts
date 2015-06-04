@@ -74,7 +74,7 @@ You should see that the contract validates:
 
   1 passing
 
-               
+
 ```
 
 ## Anatomy of a contract
@@ -99,7 +99,7 @@ module.exports = new Contract({
 
 ### `consumer`
 
-The `consumer` property appears in the output of the `consumer-contracts` tool and should be the name of the consuming service that the contract applies to. 
+The `consumer` property appears in the output of the `consumer-contracts` tool and should be the name of the consuming service that the contract applies to.
 
 ### `name`
 
@@ -134,7 +134,7 @@ The `response` object validates the response returned by your service. The entir
 
 This means that any fields you choose to validate are _required_ by default. To indicate that a field is optional, use the [`optional()`](https://github.com/hapijs/joi#anyoptional) modifier.
 
-### Validating the response code
+#### Validating the response code
 
 To require a specific HTTP status code, set the `statusCode` property to that value:
 
@@ -152,7 +152,7 @@ response: {
 }
 ```
 
-### Validating the response headers
+#### Validating the response headers
 
 The response headers can be validated using a Joi schema:
 
@@ -165,7 +165,7 @@ response: {
 }
 ```
 
-### Validating the response body
+#### Validating the response body
 
 The response body can be validated using a Joi schema:
 
@@ -178,6 +178,32 @@ response: {
     }))
   })
 }
+```
+
+### `client` _optional_
+
+You can use a pre-configured [request](https://github.com/request/request) client for your contracts using the `client` property. This can be useful when you have a set of common request options across contracts.
+
+```js
+var Contract = require('consumer-contracts').Contract;
+var Joi = require('consumer-contracts').Joi;
+var client = require('request').defaults({
+  headers: {
+    authorization: 'Bearer xxx'
+  }
+});
+
+module.exports = new Contract({
+  name: 'Contract name',
+  consumer: 'Consumer name',
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  },
+  client: client
+});
 ```
 
 ## CLI

@@ -2,6 +2,7 @@ var Contract = require('../lib/contract');
 var Joi = require('joi');
 var assert = require('chai').assert;
 var nock = require('nock');
+var sinon = require('sinon');
 
 describe('Contract', function () {
   it('returns an error when the name is missing', function () {
@@ -124,6 +125,62 @@ describe('Contract', function () {
       contract.validate(function (err) {
         assert.ok(err);
         assert.equal(err.message, 'Request failed: ESOCKETTIMEDOUT');
+        done();
+      });
+    });
+
+    it('sets a user-agent header', function (done) {
+      nock('http://api.example.com', {
+        reqheaders: {
+          'user-agent': 'consumer-contracts/' + require('../package').version
+        }
+      }).get('/').reply(200);
+
+      var contract = new Contract({
+        name: 'Name',
+        consumer: 'Consumer',
+        request: {
+          url: 'http://api.example.com/'
+        },
+        response: {
+          statusCode: 200
+        }
+      });
+
+      contract.validate(function (err) {
+        assert.ifError(err);
+        done();
+      });
+    });
+
+    it('supports passing a custom request client', function (done) {
+      nock('http://api.example.com', {
+        reqheaders: {
+          authorization: 'Bearer xxx',
+          'user-agent': 'consumer-contracts/' + require('../package').version
+        }
+      }).get('/').reply(200);
+
+      var client = require('request').defaults({
+        headers: {
+          authorization: 'Bearer xxx'
+        }
+      });
+
+      var contract = new Contract({
+        name: 'Name',
+        consumer: 'Consumer',
+        request: {
+          url: 'http://api.example.com/'
+        },
+        response: {
+          statusCode: 200
+        },
+        client: client
+      });
+
+      contract.validate(function (err) {
+        assert.ifError(err);
         done();
       });
     });
