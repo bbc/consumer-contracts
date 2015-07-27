@@ -22,7 +22,7 @@ Install the `consumer-contracts` tool globally:
 npm install --global consumer-contracts
 ```
 
-Install the `consumer-contracts` module locally (this gives you access to the contract defintion interface in your contract files):
+Install the `consumer-contracts` module locally (this gives you access to the contract definition interface in your contract files):
 
 ```
 npm install --save consumer-contracts
