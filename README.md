@@ -1,4 +1,6 @@
-# consumer-contracts
+<h1 align="center">
+  <img width="500" src="https://rawgit.com/robinjmurphy/consumer-contracts/master/logo.svg" alt="Consumer Contracts">
+</h1>
 
 [![Build Status](https://travis-ci.org/robinjmurphy/consumer-contracts.svg)](https://travis-ci.org/robinjmurphy/consumer-contracts) [![Code Climate](https://codeclimate.com/github/robinjmurphy/consumer-contracts/badges/gpa.svg)](https://codeclimate.com/github/robinjmurphy/consumer-contracts)
 
