@@ -105,7 +105,7 @@ The `consumer` property appears in the output of the `consumer-contracts` tool a
 
 ### `name`
 
-The `name` property appears in the output of the `consumer-contracts` tool and helps you identfiy each individual contract.
+The `name` property appears in the output of the `consumer-contracts` tool and helps you identify each individual contract.
 
 ### `request`
 
