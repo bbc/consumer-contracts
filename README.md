@@ -27,7 +27,7 @@ npm install --global consumer-contracts
 Install the `consumer-contracts` module locally (this gives you access to the contract definition interface in your contract files):
 
 ```
-npm install --save consumer-contracts
+npm install --save-dev consumer-contracts
 ```
 
 Create a `contracts` directory at the root of your project:
