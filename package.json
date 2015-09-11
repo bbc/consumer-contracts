@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "lint": "jshint ."
+    "lint": "jshint .",
+    "posttest": "npm run lint"
   },
   "bin": {
     "consumer-contracts": "./lib/cli.js"

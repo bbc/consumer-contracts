@@ -2,7 +2,6 @@ var Contract = require('../lib/contract');
 var Joi = require('joi');
 var assert = require('chai').assert;
 var nock = require('nock');
-var sinon = require('sinon');
 
 describe('Contract', function () {
   it('returns an error when the name is missing', function () {
