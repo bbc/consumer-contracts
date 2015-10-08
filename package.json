@@ -38,8 +38,9 @@
     "sinon": "^1.14.1"
   },
   "devDependencies": {
-    "mocha": "^2.2.5",
     "chai": "^2.3.0",
+    "jshint": "^2.8.0",
+    "mocha": "^2.2.5",
     "nock": "^2.2.0"
   },
   "jshintConfig": {
