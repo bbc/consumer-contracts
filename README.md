@@ -118,10 +118,12 @@ request: {
   headers: {
     Accept: 'text/xml'
   },
-  cert: fs.readFileSync('/path/to/my/cert.crt'),
-  key: fs.readFileSync('/path/to/my/cert.key')
+  pfx: fs.readFileSync('/path/to/my/cert.p12'),
+  passphrase: 'my-cert-passphrase'
 }
 ```
+
+When running under certain environments you may receive SSL errors regarding a CA file. If you know that strict trust checking is not required in this situation you may set `strictSSL: false` on the above request object, which should resolve the issue.
 
 ### `response`
 
