@@ -14,7 +14,7 @@
   "preferGlobal": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/robinjmurphy/consumer-contracts.git"
+    "url": "git+https://github.com/bbc/consumer-contracts.git"
   },
   "keywords": [
     "consumer",
@@ -23,9 +23,9 @@
   "author": "robin@robinmurphy.co.uk",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/robinjmurphy/consumer-contracts/issues"
+    "url": "https://github.com/bbc/consumer-contracts/issues"
   },
-  "homepage": "https://github.com/robinjmurphy/consumer-contracts#readme",
+  "homepage": "https://github.com/bbc/consumer-contracts#readme",
   "dependencies": {
     "async": "^1.0.0",
     "chalk": "^1.0.0",

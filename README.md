@@ -1,8 +1,8 @@
 <h1 align="center">
-  <img width="550" src="https://rawgit.com/robinjmurphy/consumer-contracts/master/logo.svg" alt="Consumer Contracts">
+  <img width="550" src="https://rawgit.com/bbc/consumer-contracts/master/logo.svg" alt="Consumer Contracts">
 </h1>
 
-[![Build Status](https://travis-ci.org/robinjmurphy/consumer-contracts.svg)](https://travis-ci.org/robinjmurphy/consumer-contracts) [![Code Climate](https://codeclimate.com/github/robinjmurphy/consumer-contracts/badges/gpa.svg)](https://codeclimate.com/github/robinjmurphy/consumer-contracts)
+[![Build Status](https://travis-ci.org/bbc/consumer-contracts.svg)](https://travis-ci.org/bbc/consumer-contracts) [![Code Climate](https://codeclimate.com/github/bbc/consumer-contracts/badges/gpa.svg)](https://codeclimate.com/github/bbc/consumer-contracts)
 
 > Consumer-driven contracts in JavaScript
 
