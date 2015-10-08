@@ -21,7 +21,7 @@
     "contracts"
   ],
   "author": "robin@robinmurphy.co.uk",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/robinjmurphy/consumer-contracts/issues"
   },
