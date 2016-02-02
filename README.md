@@ -2,7 +2,7 @@
   <img width="550" src="https://rawgit.com/bbc/consumer-contracts/master/logo.svg" alt="Consumer Contracts">
 </h1>
 
-[![Build Status](https://travis-ci.org/bbc/consumer-contracts.svg)](https://travis-ci.org/bbc/consumer-contracts) [![Code Climate](https://codeclimate.com/github/bbc/consumer-contracts/badges/gpa.svg)](https://codeclimate.com/github/bbc/consumer-contracts)
+[![Build Status](https://travis-ci.org/bbc/consumer-contracts.svg)](https://travis-ci.org/bbc/consumer-contracts) [![Code Climate](https://codeclimate.com/github/bbc/consumer-contracts/badges/gpa.svg)](https://codeclimate.com/github/bbc/consumer-contracts) [![Test Coverage](https://codeclimate.com/github/bbc/consumer-contracts/badges/coverage.svg)](https://codeclimate.com/github/bbc/consumer-contracts/coverage)
 
 > Consumer-driven contracts in JavaScript
 
