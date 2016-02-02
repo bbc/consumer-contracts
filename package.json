@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha",
     "lint": "jshint .",
-    "posttest": "npm run lint"
+    "posttest": "npm run lint",
+    "coverage": "istanbul cover _mocha -- -R dot"
   },
   "bin": {
     "consumer-contracts": "./lib/cli.js"
@@ -34,14 +35,15 @@
     "joi": "^6.4.2",
     "lodash": "^3.9.1",
     "recursive-readdir": "^1.2.1",
-    "request": "^2.55.0",
-    "sinon": "^1.14.1"
+    "request": "^2.55.0"
   },
   "devDependencies": {
     "chai": "^2.3.0",
+    "istanbul": "^0.4.2",
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
-    "nock": "^2.2.0"
+    "nock": "^2.2.0",
+    "sinon": "^1.14.1"
   },
   "jshintConfig": {
     "quotmark": "single",
