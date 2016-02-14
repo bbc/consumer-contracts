@@ -219,7 +219,7 @@ module.exports = new Contract({
   name: 'Contract name',
   consumer: 'Consumer name',
   before: function (done) {
-    // ... setup
+    // setup
     done();
   },
   request: {
