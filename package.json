@@ -32,7 +32,7 @@
     "chalk": "^1.0.0",
     "commander": "^2.8.1",
     "debug": "^2.2.0",
-    "joi": "^7.3.0",
+    "joi": "^6.10.1",
     "lodash": "^3.10.1",
     "recursive-readdir": "^1.2.1",
     "request": "^2.55.0"
