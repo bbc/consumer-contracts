@@ -2,9 +2,10 @@ var Contract = require('../lib/contract');
 var Joi = require('joi');
 var assert = require('chai').assert;
 var nock = require('nock');
+var sinon = require('sinon');
 
 describe('Contract', function () {
-  it('returns an error when the name is missing', function () {
+  it('throws an error when the name is missing', function () {
     assert.throws(function () {
       new Contract({
         consumer: 'Consumer',
@@ -18,7 +19,7 @@ describe('Contract', function () {
     }, 'Invalid contract: Missing required property [name]');
   });
 
-  it('returns an error when the consumer is missing', function () {
+  it('throws an error when the consumer is missing', function () {
     assert.throws(function () {
       new Contract({
         name: 'Name',
@@ -32,7 +33,7 @@ describe('Contract', function () {
     }, 'Invalid contract: Missing required property [consumer]');
   });
 
-  it('returns an error when the request is missing', function () {
+  it('throws an error when the request is missing', function () {
     assert.throws(function () {
       new Contract({
         name: 'Name',
@@ -44,7 +45,7 @@ describe('Contract', function () {
     }, 'Invalid contract: Missing required property [request]');
   });
 
-  it('returns an error when the response is missing', function () {
+  it('throws an error when the response is missing', function () {
     assert.throws(function () {
       new Contract({
         name: 'Name',
@@ -146,10 +147,7 @@ describe('Contract', function () {
         }
       });
 
-      contract.validate(function (err) {
-        assert.ifError(err);
-        done();
-      });
+      contract.validate(done);
     });
 
     it('supports passing a custom request client', function (done) {
@@ -180,6 +178,54 @@ describe('Contract', function () {
 
       contract.validate(function (err) {
         assert.ifError(err);
+        done();
+      });
+    });
+
+    it('runs the before function before validating the contact', function (done) {
+      var before = sinon.stub().yields();
+
+      nock('http://api.example.com').get('/').reply(200);
+
+      var contract = new Contract({
+        name: 'Name',
+        consumer: 'Consumer',
+        before: before,
+        request: {
+          url: 'http://api.example.com/'
+        },
+        response: {
+          statusCode: 200
+        }
+      });
+
+      contract.validate(function (err) {
+        assert.ifError(err);
+        sinon.assert.called(before);
+        done();
+      });
+    });
+
+    it('returns an error when the before function fails', function (done) {
+      var before = sinon.stub().yields(new Error('Setup error'));
+
+      nock('http://api.example.com').get('/').reply(200);
+
+      var contract = new Contract({
+        name: 'Name',
+        consumer: 'Consumer',
+        before: before,
+        request: {
+          url: 'http://api.example.com/'
+        },
+        response: {
+          statusCode: 200
+        }
+      });
+
+      contract.validate(function (err) {
+        assert.ok(err);
+        assert.equal(err.message, 'Setup error');
         done();
       });
     });

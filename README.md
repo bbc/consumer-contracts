@@ -81,7 +81,7 @@ You should see that the contract validates:
 
 ## Anatomy of a contract
 
-Each contract contains four properties; `consumer`, `name`, `request` and `response`.
+Each contract contains four required properties; `consumer`, `name`, `request` and `response`.
 
 ```js
 var Contract = require('consumer-contracts').Contract;
@@ -207,6 +207,27 @@ module.exports = new Contract({
     // ...
   },
   client: client
+});
+```
+
+### `before` _optional_
+
+If your contract requires some setup (e.g. populating an API with data) you can use the `before` property. It takes a function that will be run before the contract executes. The setup function receives a callback argument that you should call once your setup is complete.
+
+```js
+module.exports = new Contract({
+  name: 'Contract name',
+  consumer: 'Consumer name',
+  before: function (done) {
+    // ... setup
+    done();
+  },
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  }
 });
 ```
 
