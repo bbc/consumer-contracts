@@ -32,18 +32,18 @@
     "chalk": "^1.0.0",
     "commander": "^2.8.1",
     "debug": "^2.2.0",
-    "joi": "^6.4.2",
-    "lodash": "^3.9.1",
+    "joi": "^7.3.0",
+    "lodash": "^3.10.1",
     "recursive-readdir": "^1.2.1",
     "request": "^2.55.0"
   },
   "devDependencies": {
-    "chai": "^2.3.0",
+    "chai": "^3.5.0",
     "codeclimate-test-reporter": "^0.3.0",
     "istanbul": "^0.4.2",
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
-    "nock": "^2.2.0",
+    "nock": "^7.0.2",
     "sinon": "^1.14.1"
   },
   "jshintConfig": {
