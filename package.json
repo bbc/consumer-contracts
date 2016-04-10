@@ -35,7 +35,9 @@
     "joi": "^6.10.1",
     "lodash": "^3.10.1",
     "recursive-readdir": "^1.2.1",
-    "request": "^2.55.0"
+    "request": "^2.55.0",
+    "filehound": "^1.5.0",
+    "sinon": "^1.14.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
