@@ -229,5 +229,54 @@ describe('Contract', function () {
         done();
       });
     });
+
+
+    it('runs the after function after validating the contact', function (done) {
+      var after = sinon.stub().yields();
+
+      nock('http://api.example.com').get('/').reply(200);
+
+      var contract = new Contract({
+        name: 'Name',
+        consumer: 'Consumer',
+        request: {
+          url: 'http://api.example.com/'
+        },
+        response: {
+          statusCode: 200
+        },
+        after: after
+      });
+
+      contract.validate(function (err) {
+        assert.ifError(err);
+        sinon.assert.called(after);
+        done();
+      });
+    });
+
+    it('returns an error when the after function fails', function (done) {
+      var after = sinon.stub().yields(new Error('Cleanup error'));
+
+      nock('http://api.example.com').get('/').reply(200);
+
+      var contract = new Contract({
+        name: 'Name',
+        consumer: 'Consumer',
+        request: {
+          url: 'http://api.example.com/'
+        },
+        response: {
+          statusCode: 200
+        },
+        after: after
+      });
+
+      contract.validate(function (err) {
+        assert.ok(err);
+        assert.equal(err.message, 'Cleanup error');
+        done();
+      });
+    });
   });
 });
