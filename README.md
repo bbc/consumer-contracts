@@ -231,6 +231,27 @@ module.exports = new Contract({
 });
 ```
 
+### `after` _optional_
+
+If your contract requires some cleanup you can use the `after` property. It takes a function that will be run after the contract executes. The after function receives a callback argument that you should call once your cleanup is complete.
+
+```js
+module.exports = new Contract({
+  name: 'Contract name',
+  consumer: 'Consumer name',
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  },
+  after: function (done) {
+    // cleanup
+    done();
+  }
+});
+```
+
 ## CLI
 
 ### `run`
