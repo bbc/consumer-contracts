@@ -33,7 +33,7 @@
     "commander": "^2.8.1",
     "debug": "^2.2.0",
     "joi": "^6.10.1",
-    "lodash": "^3.10.1",
+    "lodash": "^4.12.0",
     "request": "^2.55.0",
     "filehound": "^1.5.1"
   },
@@ -43,7 +43,7 @@
     "istanbul": "^0.4.2",
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
-    "nock": "^7.0.2",
+    "nock": "^8.0.0",
     "sinon": "^1.17.3"
   },
   "jshintConfig": {
