@@ -55,6 +55,26 @@ describe('Contract', function () {
         }
       });
     }, 'Invalid contract: Missing required property [response]');
+
+    it('supports passing custom Joi options', function () {
+      var options = {
+        name: 'Name',
+        consumer: 'Consumer',
+        request: {
+          url: 'http://api.example.com/'
+        },
+        response: {
+          statusCode: 200,
+          body: Joi.object().keys({
+            foo: Joi.string()
+          })
+        }
+      };
+      options.joiOptions = { just: 'checking' };
+      var contract = new Contract(options);
+      assert.equal(contract.joiOptions.just, options.joiOptions.just);
+    });
+
   });
 
   describe('.validate', function () {
