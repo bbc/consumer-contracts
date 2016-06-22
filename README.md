@@ -13,6 +13,7 @@ API consumers codify their expections of your service in an executable _contract
 This project lets you write executable contracts in JavaScript. It uses [request](https://github.com/request/request) to make HTTP requests and [Joi](https://github.com/hapijs/joi) to validate API responses. Contracts are defined as JavaScript modules in a `contracts` directory at the root of your project and can be executed using the `consumer-contracts` tool.
 
 * [Getting started](#getting-started)
+* [Custom Joi options](#custom-joi-options)
 * [Anatomy of a contract](#anatomy-of-a-contract)
 * [CLI](#cli)
 
@@ -78,6 +79,22 @@ You should see that the contract validates:
 
 
 ```
+
+## Custom Joi options
+
+You could pass custom Joi options, if you want to override the defaults (have a look in lib/contract.js for them) just pass a `joiOptions` object attribute to the `options` object, like so:
+
+```js
+module.exports = new Contract({
+  name: 'User API',
+  consumer: 'My GitHub Service',
+  request: { ... },
+  response: { ... },
+  joiOptions: { ... }
+});
+```
+
+Default Joi attributes are overridden only if you specify them explicitly, otherwise they are preserved.
 
 ## Anatomy of a contract
 
