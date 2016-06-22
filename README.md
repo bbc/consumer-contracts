@@ -254,6 +254,26 @@ module.exports = new Contract({
 });
 ```
 
+### `joiOptions` _optional_
+
+Overrides the default Joi validation options.
+
+```js
+module.exports = new Contract({
+  name: 'Contract name',
+  consumer: 'Consumer name',
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  },
+  joiOptions: {
+    allowUnknown: false
+  }
+});
+```
+
 ## CLI
 
 ### `run`
