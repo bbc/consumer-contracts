@@ -13,7 +13,6 @@ API consumers codify their expections of your service in an executable _contract
 This project lets you write executable contracts in JavaScript. It uses [request](https://github.com/request/request) to make HTTP requests and [Joi](https://github.com/hapijs/joi) to validate API responses. Contracts are defined as JavaScript modules in a `contracts` directory at the root of your project and can be executed using the `consumer-contracts` tool.
 
 * [Getting started](#getting-started)
-* [Custom Joi options](#custom-joi-options)
 * [Anatomy of a contract](#anatomy-of-a-contract)
 * [CLI](#cli)
 
@@ -80,22 +79,6 @@ You should see that the contract validates:
 
 ```
 
-## Custom Joi options
-
-You could pass custom Joi options, if you want to override the defaults (have a look in lib/contract.js for them) just pass a `joiOptions` object attribute to the `options` object, like so:
-
-```js
-module.exports = new Contract({
-  name: 'User API',
-  consumer: 'My GitHub Service',
-  request: { ... },
-  response: { ... },
-  joiOptions: { ... }
-});
-```
-
-Default Joi attributes are overridden only if you specify them explicitly, otherwise they are preserved.
-
 ## Anatomy of a contract
 
 Each contract contains four required properties; `consumer`, `name`, `request` and `response`.
@@ -144,7 +127,7 @@ When running under certain environments you may receive SSL errors regarding a C
 
 ### `response`
 
-The `response` object validates the response returned by your service. The entire object is treated as a [Joi](https://github.com/hapijs/joi) schema that validates the `res` object returned by `request`. This means that the response's status code, headers and JSON body can all be validated using Joi's flexible schema language. The following options are passed to Joi's [`validate()`](https://github.com/hapijs/joi#validatevalue-schema-options-callback) function:
+The `response` object validates the response returned by your service. The entire object is treated as a [Joi](https://github.com/hapijs/joi) schema that validates the `res` object returned by `request`. This means that the response's status code, headers and JSON body can all be validated using Joi's flexible schema language. The following default options are passed to Joi's [`validate()`](https://github.com/hapijs/joi#validatevalue-schema-options-callback) function:
 
 ```js
 {
@@ -154,6 +137,8 @@ The `response` object validates the response returned by your service. The entir
 ```
 
 This means that any fields you choose to validate are _required_ by default. To indicate that a field is optional, use the [`optional()`](https://github.com/hapijs/joi#anyoptional) modifier.
+
+If you need to override the default [Joi options](https://github.com/hapijs/joi/blob/v6.10.1/API.md#validatevalue-schema-options-callback), you can use the optional `joiOptions` property in your contract.
 
 #### Validating the response code
 
