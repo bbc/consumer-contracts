@@ -68,16 +68,22 @@ describe('Contract', function () {
           body: Joi.object().keys({
             foo: Joi.string()
           })
+        },
+        joiOptions: {
+          just: 'checking'
         }
       };
-      options.joiOptions = { just: 'checking' };
       var contract = new Contract(options);
+
       assert.equal(contract.joiOptions.just, options.joiOptions.just);
     });
-
   });
 
   describe('.validate', function () {
+    beforeEach(function () {
+      nock.cleanAll();
+    });
+
     it('does not return an error when the contract is valid', function (done) {
       nock('http://api.example.com').get('/').reply(200, {
         foo: 'bar'
@@ -295,6 +301,37 @@ describe('Contract', function () {
       contract.validate(function (err) {
         assert.ok(err);
         assert.equal(err.message, 'Cleanup error');
+        done();
+      });
+    });
+
+    it('applies any custom Joi options', function (done) {
+      nock('http://api.example.com').get('/').reply(200, {
+        bar: 'baz',
+        baz: 'qux'
+      });
+
+      var contract = new Contract({
+        name: 'Name',
+        consumer: 'Consumer',
+        request: {
+          url: 'http://api.example.com/'
+        },
+        response: {
+          statusCode: 200,
+          body: Joi.object().keys({
+            bar: Joi.string()
+          })
+        },
+        joiOptions: {
+          allowUnknown: false
+        }
+      });
+
+      contract.validate(function (err) {
+        assert.ok(err);
+        assert.equal(err.message, 'Contract failed: "baz" is not allowed');
+        assert.equal(err.detail, 'at res.body.baz got [qux]');
         done();
       });
     });
