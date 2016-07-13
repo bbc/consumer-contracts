@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/bbc/consumer-contracts#readme",
   "dependencies": {
-    "async": "^1.5.2",
+    "async": "^2.0.0",
     "chalk": "^1.0.0",
     "commander": "^2.8.1",
     "debug": "^2.2.0",
