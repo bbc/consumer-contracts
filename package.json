@@ -43,7 +43,7 @@
     "istanbul": "^0.4.2",
     "jshint": "^2.8.0",
     "mocha": "^3.0.1",
-    "nock": "^9.0.2",
+    "nock": "^9.0.8",
     "sinon": "^1.17.3"
   },
   "jshintConfig": {
