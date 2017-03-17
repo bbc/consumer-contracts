@@ -291,3 +291,29 @@ To run a single contract, pass a filename to the `run` command:
 ```
 consumer-contracts run ./contracts/consumer-a/contract-1.js
 ```
+
+## Programmatic Usage
+
+To validate an array of contracts programmatically, first require the `validateContracts` function:
+
+```js
+var validateContracts = require('consumer-contracts').validateContracts;
+```
+
+The `validateContracts` function can then be called with an array of contracts and a callback function which takes two arguments,
+`error` and `results`:
+
+```js
+var contracts = [
+  new Contract(...),
+  new Contract(...)
+];
+
+var handleContractValidations = function (err, res) { ... }
+
+validateContracts(contracts, handleContractValidations);
+```
+
+The `error` argument will always be null, as `consumer-contracts` will always run every contract in the array rather than failing fast, as such, error handling must deal with the `err` field of each object in the results array as detailed below.
+
+The `results` will be an array of objects with fields `contract` and `err`. The `contract` field of the result object contains the executed Contract object including any `before` and `after` fields. The `err` field contains any error that occurred when validating the specific contract. Error handling should check the `err` field of every result object is `null` before declaring the contract suite as having been run successfully.
