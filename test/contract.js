@@ -208,7 +208,7 @@ describe('Contract', () => {
       });
     });
 
-    it('runs the before before=>  validating the contact', (done) => {
+    it('runs the before before  validating the contact', (done) => {
       const before = sinon.stub().yields();
 
       nock('http://api.example.com').get('/').reply(200);
