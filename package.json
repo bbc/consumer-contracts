@@ -1,16 +1,19 @@
 {
   "name": "consumer-contracts",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "Consumer driven contracts for Node.js",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "lint": "jshint .",
+    "lint": "eslint .",
     "posttest": "npm run lint",
     "coverage": "istanbul cover _mocha -- -R dot"
   },
   "bin": {
     "consumer-contracts": "./lib/cli.js"
+  },
+  "engines": {
+    "node": ">4.0.0"
   },
   "preferGlobal": true,
   "repository": {
@@ -21,7 +24,7 @@
     "consumer",
     "contracts"
   ],
-  "author": "robin@robinmurphy.co.uk",
+  "author": "ibl-team@lists.forge.bbc.co.uk",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bbc/consumer-contracts/issues"
@@ -40,24 +43,15 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "codeclimate-test-reporter": "^0.4.0",
+    "eslint": "^2.10.2",
+    "eslint-config-iplayer-es6": "^2.0.0",
+    "eslint-plugin-mocha": "^2.2.0",
     "istanbul": "^0.4.2",
-    "jshint": "^2.8.0",
     "mocha": "^3.0.1",
     "nock": "^9.0.2",
     "sinon": "^1.17.3"
   },
-  "jshintConfig": {
-    "quotmark": "single",
-    "unused": true,
-    "undef": true,
-    "node": true,
-    "globals": {
-      "describe": false,
-      "it": false,
-      "before": false,
-      "beforeEach": false,
-      "after": false,
-      "afterEach": false
-    }
+  "eslintConfig": {
+    "extends": "iplayer-es6"
   }
 }
