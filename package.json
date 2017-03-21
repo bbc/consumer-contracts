@@ -1,6 +1,6 @@
 {
   "name": "consumer-contracts",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Consumer driven contracts for Node.js",
   "main": "index.js",
   "scripts": {
