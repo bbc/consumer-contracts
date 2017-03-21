@@ -1,12 +1,12 @@
-var Contract = require('../lib/contract');
-var Joi = require('joi');
-var assert = require('chai').assert;
-var nock = require('nock');
-var sinon = require('sinon');
+const Contract = require('../lib/contract');
+const Joi = require('joi');
+const assert = require('chai').assert;
+const nock = require('nock');
+const sinon = require('sinon');
 
-describe('Contract', function () {
-  it('throws an error when the name is missing', function () {
-    assert.throws(function () {
+describe('Contract', () => {
+  it('throws an error when the name is missing', () => {
+    assert.throws(() => {
       new Contract({
         consumer: 'Consumer',
         request: {
@@ -19,8 +19,8 @@ describe('Contract', function () {
     }, 'Invalid contract: Missing required property [name]');
   });
 
-  it('throws an error when the consumer is missing', function () {
-    assert.throws(function () {
+  it('throws an error when the consumer is missing', () => {
+    assert.throws(() => {
       new Contract({
         name: 'Name',
         request: {
@@ -33,8 +33,8 @@ describe('Contract', function () {
     }, 'Invalid contract: Missing required property [consumer]');
   });
 
-  it('throws an error when the request is missing', function () {
-    assert.throws(function () {
+  it('throws an error when the request is missing', () => {
+    assert.throws(() => {
       new Contract({
         name: 'Name',
         consumer: 'Consumer',
@@ -45,8 +45,8 @@ describe('Contract', function () {
     }, 'Invalid contract: Missing required property [request]');
   });
 
-  it('throws an error when the response is missing', function () {
-    assert.throws(function () {
+  it('throws an error when the response is missing', () => {
+    assert.throws(() => {
       new Contract({
         name: 'Name',
         consumer: 'Consumer',
@@ -56,8 +56,8 @@ describe('Contract', function () {
       });
     }, 'Invalid contract: Missing required property [response]');
 
-    it('supports passing custom Joi options', function () {
-      var options = {
+    it('supports passing custom Joi options', () => {
+      const options = {
         name: 'Name',
         consumer: 'Consumer',
         request: {
@@ -73,23 +73,23 @@ describe('Contract', function () {
           just: 'checking'
         }
       };
-      var contract = new Contract(options);
+      const contract = new Contract(options);
 
       assert.equal(contract.joiOptions.just, options.joiOptions.just);
     });
   });
 
-  describe('.validate', function () {
-    beforeEach(function () {
+  describe('.validate', () => {
+    beforeEach(() => {
       nock.cleanAll();
     });
 
-    it('does not return an error when the contract is valid', function (done) {
+    it('does not return an error when the contract is valid', (done) => {
       nock('http://api.example.com').get('/').reply(200, {
         foo: 'bar'
       });
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         request: {
@@ -106,12 +106,12 @@ describe('Contract', function () {
       contract.validate(done);
     });
 
-    it('returns an error when the contract is broken', function (done) {
+    it('returns an error when the contract is broken', (done) => {
       nock('http://api.example.com').get('/').reply(200, {
         bar: 'baz'
       });
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         request: {
@@ -125,7 +125,7 @@ describe('Contract', function () {
         }
       });
 
-      contract.validate(function (err) {
+      contract.validate((err) => {
         assert.ok(err);
         assert.equal(err.message, 'Contract failed: "bar" must be a number');
         assert.equal(err.detail, 'at res.body.bar got [baz]');
@@ -133,10 +133,10 @@ describe('Contract', function () {
       });
     });
 
-    it('returns an error when the request fails', function (done) {
+    it('returns an error when the request fails', (done) => {
       nock('http://api.example.com').get('/').socketDelay(1000).reply(200, {});
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         request: {
@@ -148,21 +148,21 @@ describe('Contract', function () {
         }
       });
 
-      contract.validate(function (err) {
+      contract.validate((err) => {
         assert.ok(err);
         assert.equal(err.message, 'Request failed: ESOCKETTIMEDOUT');
         done();
       });
     });
 
-    it('sets a user-agent header', function (done) {
+    it('sets a user-agent header', (done) => {
       nock('http://api.example.com', {
         reqheaders: {
           'user-agent': 'consumer-contracts/' + require('../package').version
         }
       }).get('/').reply(200);
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         request: {
@@ -176,7 +176,7 @@ describe('Contract', function () {
       contract.validate(done);
     });
 
-    it('supports passing a custom request client', function (done) {
+    it('supports passing a custom request client', (done) => {
       nock('http://api.example.com', {
         reqheaders: {
           authorization: 'Bearer xxx',
@@ -184,13 +184,13 @@ describe('Contract', function () {
         }
       }).get('/').reply(200);
 
-      var client = require('request').defaults({
+      const client = require('request').defaults({
         headers: {
           authorization: 'Bearer xxx'
         }
       });
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         request: {
@@ -202,18 +202,18 @@ describe('Contract', function () {
         client: client
       });
 
-      contract.validate(function (err) {
+      contract.validate((err) => {
         assert.ifError(err);
         done();
       });
     });
 
-    it('runs the before function before validating the contact', function (done) {
-      var before = sinon.stub().yields();
+    it('runs the before before=>  validating the contact', (done) => {
+      const before = sinon.stub().yields();
 
       nock('http://api.example.com').get('/').reply(200);
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         before: before,
@@ -225,19 +225,19 @@ describe('Contract', function () {
         }
       });
 
-      contract.validate(function (err) {
+      contract.validate((err) => {
         assert.ifError(err);
         sinon.assert.called(before);
         done();
       });
     });
 
-    it('returns an error when the before function fails', function (done) {
-      var before = sinon.stub().yields(new Error('Setup error'));
+    it('returns an error when the before function fails', (done) => {
+      const before = sinon.stub().yields(new Error('Setup error'));
 
       nock('http://api.example.com').get('/').reply(200);
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         before: before,
@@ -249,20 +249,19 @@ describe('Contract', function () {
         }
       });
 
-      contract.validate(function (err) {
+      contract.validate((err) => {
         assert.ok(err);
         assert.equal(err.message, 'Setup error');
         done();
       });
     });
 
-
-    it('runs the after function after validating the contact', function (done) {
-      var after = sinon.stub().yields();
+    it('runs the after function after validating the contact', (done) => {
+      const after = sinon.stub().yields();
 
       nock('http://api.example.com').get('/').reply(200);
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         request: {
@@ -274,19 +273,19 @@ describe('Contract', function () {
         after: after
       });
 
-      contract.validate(function (err) {
+      contract.validate((err) => {
         assert.ifError(err);
         sinon.assert.called(after);
         done();
       });
     });
 
-    it('returns an error when the after function fails', function (done) {
-      var after = sinon.stub().yields(new Error('Cleanup error'));
+    it('returns an error when the after function fails', (done) => {
+      const after = sinon.stub().yields(new Error('Cleanup error'));
 
       nock('http://api.example.com').get('/').reply(200);
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         request: {
@@ -298,20 +297,20 @@ describe('Contract', function () {
         after: after
       });
 
-      contract.validate(function (err) {
+      contract.validate((err) => {
         assert.ok(err);
         assert.equal(err.message, 'Cleanup error');
         done();
       });
     });
 
-    it('applies any custom Joi options', function (done) {
+    it('applies any custom Joi options', (done) => {
       nock('http://api.example.com').get('/').reply(200, {
         bar: 'baz',
         baz: 'qux'
       });
 
-      var contract = new Contract({
+      const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         request: {
@@ -328,7 +327,7 @@ describe('Contract', function () {
         }
       });
 
-      contract.validate(function (err) {
+      contract.validate((err) => {
         assert.ok(err);
         assert.equal(err.message, 'Contract failed: "baz" is not allowed');
         assert.equal(err.detail, 'at res.body.baz got [qux]');
