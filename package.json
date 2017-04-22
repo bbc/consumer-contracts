@@ -38,7 +38,7 @@
     "joi": "^6.10.1",
     "lodash": "^4.13.0",
     "request": "^2.55.0",
-    "filehound": "^1.5.1"
+    "filehound": "^1.13.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
