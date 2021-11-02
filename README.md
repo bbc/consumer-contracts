@@ -39,8 +39,8 @@ mkdir contracts
 Create a JavaScript file within the `contracts` directory for your first contract. The example below is a contract for the GitHub User API, we'll call it `user-api.js`. In this example, the consumer depends on the `login`, `name` and `public_repos` properties returned in the response body.
 
 ```js
-var Contract = require('consumer-contracts').Contract;
-var Joi = require('consumer-contracts').Joi;
+var Contract = require('@bbc/consumer-contracts').Contract;
+var Joi = require('@bbc/consumer-contracts').Joi;
 
 module.exports = new Contract({
   name: 'User API',
@@ -84,8 +84,8 @@ You should see that the contract validates:
 Each contract contains four required properties; `consumer`, `name`, `request` and `response`.
 
 ```js
-var Contract = require('consumer-contracts').Contract;
-var Joi = require('consumer-contracts').Joi;
+var Contract = require('@bbc/consumer-contracts').Contract;
+var Joi = require('@bbc/consumer-contracts').Joi;
 
 module.exports = new Contract({
   name: 'Contract name',
@@ -191,8 +191,8 @@ response: {
 You can use a pre-configured [request](https://github.com/request/request) client for your contracts using the `client` property. This can be useful when you have a set of common request options across contracts.
 
 ```js
-var Contract = require('consumer-contracts').Contract;
-var Joi = require('consumer-contracts').Joi;
+var Contract = require('@bbc/consumer-contracts').Contract;
+var Joi = require('@bbc/consumer-contracts').Joi;
 var client = require('request').defaults({
   headers: {
     authorization: 'Bearer xxx'
@@ -311,7 +311,7 @@ consumer-contracts run ./contracts/consumer-a/contract-1.js
 To validate an array of contracts programmatically, first require the `validateContracts` function:
 
 ```js
-var validateContracts = require('consumer-contracts').validateContracts;
+var validateContracts = require('@bbc/consumer-contracts').validateContracts;
 ```
 
 The `validateContracts` function can then be called with an array of contracts and a callback function which takes two arguments,
