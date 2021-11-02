@@ -1,3 +1,5 @@
+'use strict';
+
 const Contract = require('../lib/contract');
 const Joi = require('joi');
 const assert = require('chai').assert;
@@ -127,21 +129,21 @@ describe('Contract', () => {
 
       contract.validate((err) => {
         assert.ok(err);
-        assert.equal(err.message, 'Contract failed: "bar" must be a number');
-        assert.equal(err.detail, 'at res.body.bar got [baz]');
+        assert.equal(err.message, 'Contract failed: "body.bar" must be a number');
+        assert.equal(err.detail, 'at res.body,bar got [baz]');
         done();
       });
     });
 
     it('returns an error when the request fails', (done) => {
-      nock('http://api.example.com').get('/').socketDelay(1000).reply(200, {});
+      nock('http://api.example.com').get('/').delayConnection(2000).reply(200, {});
 
       const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
         request: {
           url: 'http://api.example.com/',
-          timeout: 1
+          timeout: 1000
         },
         response: {
           statusCode: 200
@@ -199,7 +201,7 @@ describe('Contract', () => {
         response: {
           statusCode: 200
         },
-        client: client
+        client
       });
 
       contract.validate((err) => {
@@ -216,7 +218,7 @@ describe('Contract', () => {
       const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
-        before: before,
+        before,
         request: {
           url: 'http://api.example.com/'
         },
@@ -240,7 +242,7 @@ describe('Contract', () => {
       const contract = new Contract({
         name: 'Name',
         consumer: 'Consumer',
-        before: before,
+        before,
         request: {
           url: 'http://api.example.com/'
         },
@@ -270,7 +272,7 @@ describe('Contract', () => {
         response: {
           statusCode: 200
         },
-        after: after
+        after
       });
 
       contract.validate((err) => {
@@ -294,7 +296,7 @@ describe('Contract', () => {
         response: {
           statusCode: 200
         },
-        after: after
+        after
       });
 
       contract.validate((err) => {
@@ -329,8 +331,8 @@ describe('Contract', () => {
 
       contract.validate((err) => {
         assert.ok(err);
-        assert.equal(err.message, 'Contract failed: "baz" is not allowed');
-        assert.equal(err.detail, 'at res.body.baz got [qux]');
+        assert.equal(err.message, 'Contract failed: "body.baz" is not allowed');
+        assert.equal(err.detail, 'at res.body,baz got [qux]');
         done();
       });
     });

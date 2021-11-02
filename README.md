@@ -3,9 +3,6 @@
 </h1>
 
 [![NPM downloads](https://img.shields.io/npm/dm/consumer-contracts.svg?style=flat)](https://npmjs.org/package/consumer-contracts)
-[![Build Status](https://travis-ci.org/bbc/consumer-contracts.svg?branch=master)](https://travis-ci.org/bbc/consumer-contracts) 
-[![Code Climate](https://codeclimate.com/github/bbc/consumer-contracts/badges/gpa.svg)](https://codeclimate.com/github/bbc/consumer-contracts) 
-[![Test Coverage](https://codeclimate.com/github/bbc/consumer-contracts/badges/coverage.svg)](https://codeclimate.com/github/bbc/consumer-contracts/coverage)
 
 > Consumer-driven contracts in JavaScript
 
@@ -275,6 +272,20 @@ module.exports = new Contract({
     allowUnknown: false
   }
 });
+```
+
+### Specifying multiple contracts
+
+Can be achived by returning an array of contracts.
+
+```js
+module.exports = [ new Contract(
+    // ...
+  ),
+  new Contract(
+    // ...
+  )
+];
 ```
 
 ## CLI
