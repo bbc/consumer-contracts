@@ -6,6 +6,7 @@
   "scripts": {
     "test": "mocha",
     "lint": "eslint .",
+    "prepare": "husky install",
     "posttest": "npm run lint",
     "coverage": "istanbul cover _mocha -- -R dot"
   },

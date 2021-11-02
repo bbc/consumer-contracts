@@ -1,0 +1,11 @@
+.vscode
+coverage
+.github
+.husky
+
+node_modules
+.eslintignore
+.jsbeautifyrc
+.nvmrc
+commitlint.config.js
+Jenkinsfile
