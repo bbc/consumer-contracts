@@ -79,6 +79,35 @@ You should see that the contract validates:
 
 ```
 
+### Asynchronous construction of a contract
+
+If you need to perform asynchronous operations to set up a contract then you can instead export a function that returns a `Contract`:
+
+```js
+var Contract = require('@bbc/consumer-contracts').Contract;
+var Joi = require('@bbc/consumer-contracts').Joi;
+
+module.exports = async function () {
+  const username = await getUsername();
+  return new Contract({
+    name: 'User API',
+    consumer: 'My GitHub Service',
+    request: {
+      method: 'GET',
+      url: `https://api.github.com/users/${username}`
+    },
+    response: {
+      statusCode: 200,
+      body: Joi.object().keys({
+        login: Joi.string(),
+        name: Joi.string(),
+        public_repos: Joi.number().integer()
+      })
+    }
+  });
+}
+```
+
 ## Anatomy of a contract
 
 Each contract contains four required properties; `consumer`, `name`, `request` and `response`.
