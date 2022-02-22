@@ -336,5 +336,131 @@ describe('Contract', () => {
         done();
       });
     });
+
+    describe('Retry option on', () => {
+      it('does not return an error when the contract is invalid on the first attempt but valid when retried', (done) => {
+        const responses = [
+          [500, {}],
+          [500, {}],
+          [200, { bar: 'baz' }]
+        ];
+        let replyCount = 0;
+        nock('http://api.example.com').get('/').times(3).reply(() => {
+          replyCount++;
+          return responses.shift();
+        });
+
+        const contract = new Contract({
+          name: 'Name',
+          consumer: 'Consumer',
+          request: {
+            url: 'http://api.example.com/'
+          },
+          retries: 2,
+          retryDelay: 0,
+          response: {
+            statusCode: 200,
+            body: Joi.object().keys({
+              bar: Joi.string()
+            })
+          }
+        });
+
+        contract.validate((err) => {
+          assert.ifError(err);
+          assert.equal(replyCount, 3);
+          done();
+        });
+      });
+
+      it('returns an error when the contract is invalid on initial and all retry attempts', (done) => {
+        const responses = [
+          [500, {}],
+          [500, {}],
+          [500, {}]
+        ];
+        let replyCount = 0;
+        nock('http://api.example.com').get('/').times(3).reply(() => {
+          replyCount++;
+          return responses.shift();
+        });
+
+        const contract = new Contract({
+          name: 'Name',
+          consumer: 'Consumer',
+          request: {
+            url: 'http://api.example.com/'
+          },
+          retries: 2,
+          retryDelay: 0,
+          response: {
+            statusCode: 200,
+            body: Joi.object().keys({
+              bar: Joi.string()
+            })
+          }
+        });
+
+        contract.validate((err) => {
+          assert.equal(replyCount, 3);
+          assert.ok(err);
+          assert.equal(err.message, 'Contract failed: "statusCode" must be [200]');
+          assert.equal(err.detail, 'at res.statusCode got [500]');
+          done();
+        });
+      });
+
+      it('waits before retrying if the retryDelay is specified', (done) => {
+
+        const mockClient = sinon.stub();
+        mockClient.defaults = () => {};
+        mockClient.onFirstCall().yields(undefined, {
+          statusCode: 500,
+          request: {},
+          body: {}
+        });
+
+        mockClient.onSecondCall().yields(undefined, {
+          statusCode: 200,
+          request: {},
+          body: { bar: 'baz' }
+        });
+
+        const client = {
+          defaults: () => mockClient
+        };
+
+        const clock = sinon.useFakeTimers();
+
+        const contract = new Contract({
+          name: 'Name',
+          consumer: 'Consumer',
+          request: {
+            url: 'http://api.example.com/'
+          },
+          client,
+          retries: 1,
+          retryDelay: 2000,
+          response: {
+            statusCode: 200,
+            body: Joi.object().keys({
+              bar: Joi.string()
+            })
+          }
+        });
+
+        contract.validate((err) => {
+          assert.ifError(err);
+          assert.equal(mockClient.callCount, 2);
+          done();
+        });
+
+        assert.equal(mockClient.callCount, 1);
+        clock.tick(2000);
+        assert.equal(mockClient.callCount, 2);
+        clock.restore();
+      });
+    });
+
   });
 });

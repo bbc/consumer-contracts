@@ -303,6 +303,43 @@ module.exports = new Contract({
 });
 ```
 
+### `retries` _optional_
+
+Retries the contract `retries` times if it fails on the first attempt.
+
+```js
+module.exports = new Contract({
+  name: 'Contract name',
+  consumer: 'Consumer name',
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  },
+  retries: 2
+});
+```
+
+### `retryDelay` _optional_
+
+Used with `retries` to wait `retryDelay` milliseconds between each retry.
+
+```js
+module.exports = new Contract({
+  name: 'Contract name',
+  consumer: 'Consumer name',
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  },
+  retries: 2,
+  retryDelay: 3000
+});
+```
+
 ### Specifying multiple contracts
 
 Can be achived by returning an array of contracts.
