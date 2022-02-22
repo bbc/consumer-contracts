@@ -338,13 +338,14 @@ describe('Contract', () => {
     });
 
     describe('Retry option on', () => {
-      it('does not return an error when the contract is invalid on the first attempt but valid on the second attempt', (done) => {
+      it('does not return an error when the contract is invalid on the first attempt but valid when retried', (done) => {
         const responses = [
+          [500, {}],
           [500, {}],
           [200, { bar: 'baz' }]
         ];
         let replyCount = 0;
-        nock('http://api.example.com').get('/').times(2).reply(() => {
+        nock('http://api.example.com').get('/').times(3).reply(() => {
           replyCount++;
           return responses.shift();
         });
@@ -355,7 +356,7 @@ describe('Contract', () => {
           request: {
             url: 'http://api.example.com/'
           },
-          retry: true,
+          retries: 2,
           retryDelay: 0,
           response: {
             statusCode: 200,
@@ -367,18 +368,19 @@ describe('Contract', () => {
 
         contract.validate((err) => {
           assert.ifError(err);
-          assert.equal(replyCount, 2);
+          assert.equal(replyCount, 3);
           done();
         });
       });
 
-      it('returns an error when the contract is invalid on both first and second attempts', (done) => {
+      it('returns an error when the contract is invalid on initial and all retry attempts', (done) => {
         const responses = [
+          [500, {}],
           [500, {}],
           [500, {}]
         ];
         let replyCount = 0;
-        nock('http://api.example.com').get('/').times(2).reply(() => {
+        nock('http://api.example.com').get('/').times(3).reply(() => {
           replyCount++;
           return responses.shift();
         });
@@ -389,7 +391,7 @@ describe('Contract', () => {
           request: {
             url: 'http://api.example.com/'
           },
-          retry: true,
+          retries: 2,
           retryDelay: 0,
           response: {
             statusCode: 200,
@@ -400,7 +402,7 @@ describe('Contract', () => {
         });
 
         contract.validate((err) => {
-          assert.equal(replyCount, 2);
+          assert.equal(replyCount, 3);
           assert.ok(err);
           assert.equal(err.message, 'Contract failed: "statusCode" must be [200]');
           assert.equal(err.detail, 'at res.statusCode got [500]');
@@ -437,7 +439,7 @@ describe('Contract', () => {
             url: 'http://api.example.com/'
           },
           client,
-          retry: true,
+          retries: 1,
           retryDelay: 2000,
           response: {
             statusCode: 200,

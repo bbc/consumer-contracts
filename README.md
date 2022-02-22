@@ -303,9 +303,9 @@ module.exports = new Contract({
 });
 ```
 
-### `retry` _optional_
+### `retries` _optional_
 
-Retries the contract once if it fails
+Retries the contract `retries` times if it fails on the first attempt.
 
 ```js
 module.exports = new Contract({
@@ -317,13 +317,13 @@ module.exports = new Contract({
   response: {
     // ...
   },
-  retry: true
+  retries: 2
 });
 ```
 
 ### `retryDelay` _optional_
 
-Used with `retry` to wait `retryDelay` milliseconds before retrying the contract
+Used with `retries` to wait `retryDelay` milliseconds between each retry.
 
 ```js
 module.exports = new Contract({
@@ -335,7 +335,7 @@ module.exports = new Contract({
   response: {
     // ...
   },
-  retry: true,
+  retries: 2,
   retryDelay: 3000
 });
 ```
