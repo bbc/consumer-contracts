@@ -39,7 +39,7 @@
     "filehound": "^1.5.1",
     "joi": "^17.4.2",
     "lodash": "^4.13.0",
-    "request": "^2.55.0"
+    "request": "^2.88.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^14.1.0",
