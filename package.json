@@ -1,6 +1,6 @@
 {
   "name": "@bbc/consumer-contracts",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "Consumer driven contracts for Node.js",
   "main": "index.js",
   "scripts": {
