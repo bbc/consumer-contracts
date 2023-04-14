@@ -210,7 +210,7 @@ describe('Contract', () => {
       });
     });
 
-    it('runs the before before  validating the contact', (done) => {
+    it('runs the before before validating the contact', (done) => {
       const before = sinon.stub().yields();
 
       nock('http://api.example.com').get('/').reply(200);
@@ -411,7 +411,6 @@ describe('Contract', () => {
       });
 
       it('waits before retrying if the retryDelay is specified', (done) => {
-
         const mockClient = sinon.stub();
         mockClient.defaults = () => {};
         mockClient.onFirstCall().yields(undefined, {
