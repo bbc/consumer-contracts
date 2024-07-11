@@ -12,9 +12,9 @@ API consumers codify their expections of your service in an executable _contract
 
 This project lets you write executable contracts in JavaScript. It uses [request](https://github.com/request/request) to make HTTP requests and [Joi](https://github.com/hapijs/joi) to validate API responses. Contracts are defined as JavaScript modules in a `contracts` directory at the root of your project and can be executed using the `consumer-contracts` tool.
 
-* [Getting started](#getting-started)
-* [Anatomy of a contract](#anatomy-of-a-contract)
-* [CLI](#cli)
+- [Getting started](#getting-started)
+- [Anatomy of a contract](#anatomy-of-a-contract)
+- [CLI](#cli)
 
 ## Getting started
 
@@ -39,24 +39,24 @@ mkdir contracts
 Create a JavaScript file within the `contracts` directory for your first contract. The example below is a contract for the GitHub User API, we'll call it `user-api.js`. In this example, the consumer depends on the `login`, `name` and `public_repos` properties returned in the response body.
 
 ```js
-var Contract = require('@bbc/consumer-contracts').Contract;
-var Joi = require('@bbc/consumer-contracts').Joi;
+var Contract = require("@bbc/consumer-contracts").Contract;
+var Joi = require("@bbc/consumer-contracts").Joi;
 
 module.exports = new Contract({
-  name: 'User API',
-  consumer: 'My GitHub Service',
+  name: "User API",
+  consumer: "My GitHub Service",
   request: {
-    method: 'GET',
-    url: 'https://api.github.com/users/robinjmurphy'
+    method: "GET",
+    url: "https://api.github.com/users/robinjmurphy",
   },
   response: {
-    statusCode: 200,
+    status: 200,
     body: Joi.object().keys({
       login: Joi.string(),
       name: Joi.string(),
-      public_repos: Joi.number().integer()
-    })
-  }
+      public_repos: Joi.number().integer(),
+    }),
+  },
 });
 ```
 
@@ -84,28 +84,28 @@ You should see that the contract validates:
 If you need to perform asynchronous operations to set up a contract then you can instead export a function that returns a `Contract`:
 
 ```js
-var Contract = require('@bbc/consumer-contracts').Contract;
-var Joi = require('@bbc/consumer-contracts').Joi;
+var Contract = require("@bbc/consumer-contracts").Contract;
+var Joi = require("@bbc/consumer-contracts").Joi;
 
 module.exports = async function () {
   const username = await getUsername();
   return new Contract({
-    name: 'User API',
-    consumer: 'My GitHub Service',
+    name: "User API",
+    consumer: "My GitHub Service",
     request: {
-      method: 'GET',
-      url: `https://api.github.com/users/${username}`
+      method: "GET",
+      url: `https://api.github.com/users/${username}`,
     },
     response: {
-      statusCode: 200,
+      status: 200,
       body: Joi.object().keys({
         login: Joi.string(),
         name: Joi.string(),
-        public_repos: Joi.number().integer()
-      })
-    }
+        public_repos: Joi.number().integer(),
+      }),
+    },
   });
-}
+};
 ```
 
 ## Anatomy of a contract
@@ -113,18 +113,18 @@ module.exports = async function () {
 Each contract contains four required properties; `consumer`, `name`, `request` and `response`.
 
 ```js
-var Contract = require('@bbc/consumer-contracts').Contract;
-var Joi = require('@bbc/consumer-contracts').Joi;
+var Contract = require("@bbc/consumer-contracts").Contract;
+var Joi = require("@bbc/consumer-contracts").Joi;
 
 module.exports = new Contract({
-  name: 'Contract name',
-  consumer: 'Consumer name',
+  name: "Contract name",
+  consumer: "Consumer name",
   request: {
     // ...
   },
   response: {
     // ...
-  }
+  },
 });
 ```
 
@@ -171,11 +171,11 @@ If you need to override the default [Joi options](https://github.com/hapijs/joi/
 
 #### Validating the response code
 
-To require a specific HTTP status code, set the `statusCode` property to that value:
+To require a specific HTTP status code, set the `status` property to that value:
 
 ```js
 response: {
-  statusCode: 200
+  status: 200;
 }
 ```
 
@@ -183,7 +183,7 @@ To allow a range of different status codes, you can use Joi's [`valid()`](https:
 
 ```js
 response: {
-  statusCode: Joi.any().valid(200, 201, 202)
+  status: Joi.any().valid(200, 201, 202);
 }
 ```
 
@@ -194,9 +194,9 @@ The response headers can be validated using a Joi schema:
 ```js
 response: {
   headers: Joi.object().keys({
-    'Location': Joi.string().regex(/\/users\/\d+/),
-    'Content-Type': 'application/json'
-  })
+    Location: Joi.string().regex(/\/users\/\d+/),
+    "Content-Type": "application/json",
+  });
 }
 ```
 
@@ -208,10 +208,12 @@ The response body can be validated using a Joi schema:
 response: {
   body: Joi.object().keys({
     name: Joi.string(),
-    items: Joi.array().items(Joi.object().keys({
-      id: Joi.number.integer()
-    }))
-  })
+    items: Joi.array().items(
+      Joi.object().keys({
+        id: Joi.number.integer(),
+      }),
+    ),
+  });
 }
 ```
 
@@ -220,24 +222,24 @@ response: {
 You can use a pre-configured [request](https://github.com/request/request) client for your contracts using the `client` property. This can be useful when you have a set of common request options across contracts.
 
 ```js
-var Contract = require('@bbc/consumer-contracts').Contract;
-var Joi = require('@bbc/consumer-contracts').Joi;
-var client = require('request').defaults({
+var Contract = require("@bbc/consumer-contracts").Contract;
+var Joi = require("@bbc/consumer-contracts").Joi;
+var client = require("request").defaults({
   headers: {
-    authorization: 'Bearer xxx'
-  }
+    authorization: "Bearer xxx",
+  },
 });
 
 module.exports = new Contract({
-  name: 'Contract name',
-  consumer: 'Consumer name',
+  name: "Contract name",
+  consumer: "Consumer name",
   request: {
     // ...
   },
   response: {
     // ...
   },
-  client: client
+  client: client,
 });
 ```
 
@@ -247,8 +249,8 @@ If your contract requires some setup (e.g. populating an API with data) you can 
 
 ```js
 module.exports = new Contract({
-  name: 'Contract name',
-  consumer: 'Consumer name',
+  name: "Contract name",
+  consumer: "Consumer name",
   before: function (done) {
     // setup
     done();
@@ -258,7 +260,7 @@ module.exports = new Contract({
   },
   response: {
     // ...
-  }
+  },
 });
 ```
 
@@ -268,8 +270,8 @@ If your contract requires some cleanup you can use the `after` property. It take
 
 ```js
 module.exports = new Contract({
-  name: 'Contract name',
-  consumer: 'Consumer name',
+  name: "Contract name",
+  consumer: "Consumer name",
   request: {
     // ...
   },
@@ -279,7 +281,7 @@ module.exports = new Contract({
   after: function (done) {
     // cleanup
     done();
-  }
+  },
 });
 ```
 
@@ -289,8 +291,8 @@ Overrides the default Joi validation options.
 
 ```js
 module.exports = new Contract({
-  name: 'Contract name',
-  consumer: 'Consumer name',
+  name: "Contract name",
+  consumer: "Consumer name",
   request: {
     // ...
   },
@@ -298,8 +300,8 @@ module.exports = new Contract({
     // ...
   },
   joiOptions: {
-    allowUnknown: false
-  }
+    allowUnknown: false,
+  },
 });
 ```
 
@@ -309,15 +311,15 @@ Retries the contract `retries` times if it fails on the first attempt.
 
 ```js
 module.exports = new Contract({
-  name: 'Contract name',
-  consumer: 'Consumer name',
+  name: "Contract name",
+  consumer: "Consumer name",
   request: {
     // ...
   },
   response: {
     // ...
   },
-  retries: 2
+  retries: 2,
 });
 ```
 
@@ -327,8 +329,8 @@ Used with `retries` to wait `retryDelay` milliseconds between each retry.
 
 ```js
 module.exports = new Contract({
-  name: 'Contract name',
-  consumer: 'Consumer name',
+  name: "Contract name",
+  consumer: "Consumer name",
   request: {
     // ...
   },
@@ -336,7 +338,7 @@ module.exports = new Contract({
     // ...
   },
   retries: 2,
-  retryDelay: 3000
+  retryDelay: 3000,
 });
 ```
 
@@ -345,12 +347,11 @@ module.exports = new Contract({
 Can be achived by returning an array of contracts.
 
 ```js
-module.exports = [ new Contract(
-    // ...
-  ),
-  new Contract(
-    // ...
-  )
+module.exports = [
+  new Contract(),
+  // ...
+  new Contract(),
+  // ...
 ];
 ```
 
@@ -377,7 +378,7 @@ consumer-contracts run ./contracts/consumer-a/contract-1.js
 To validate an array of contracts programmatically, first require the `validateContracts` function:
 
 ```js
-var validateContracts = require('@bbc/consumer-contracts').validateContracts;
+var validateContracts = require("@bbc/consumer-contracts").validateContracts;
 ```
 
 The `validateContracts` function can then be called with an array of contracts and a callback function which takes two arguments,

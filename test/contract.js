@@ -1,79 +1,80 @@
-'use strict';
+import Joi from "joi";
+import { assert } from "chai";
+import nock from "nock";
+import sinon from "sinon";
+import fetch from "node-fetch";
 
-const Contract = require('../lib/contract');
-const Joi = require('joi');
-const assert = require('chai').assert;
-const nock = require('nock');
-const sinon = require('sinon');
+import { Contract } from "../lib/contract.js";
+import pkg from "../package.json" with { type: "json" };
 
-describe('Contract', () => {
-  it('throws an error when the name is missing', () => {
+describe("Contract", () => {
+  it("throws an error when the name is missing", () => {
     assert.throws(() => {
       new Contract({
-        consumer: 'Consumer',
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200
-        }
+          status: 200,
+        },
       });
-    }, 'Invalid contract: Missing required property [name]');
+    }, "Invalid contract: Missing required property [name]");
   });
 
-  it('throws an error when the consumer is missing', () => {
+  it("throws an error when the consumer is missing", () => {
     assert.throws(() => {
       new Contract({
-        name: 'Name',
+        name: "Name",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200
-        }
+          status: 200,
+        },
       });
-    }, 'Invalid contract: Missing required property [consumer]');
+    }, "Invalid contract: Missing required property [consumer]");
   });
 
-  it('throws an error when the request is missing', () => {
+  it("throws an error when the request is missing", () => {
     assert.throws(() => {
       new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         response: {
-          statusCode: 200
-        }
+          status: 200,
+        },
       });
-    }, 'Invalid contract: Missing required property [request]');
+    }, "Invalid contract: Missing required property [request]");
   });
 
-  it('throws an error when the response is missing', () => {
+  it("throws an error when the response is missing", () => {
     assert.throws(() => {
       new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
-        }
+          url: "http://api.example.com/",
+        },
       });
-    }, 'Invalid contract: Missing required property [response]');
+    }, "Invalid contract: Missing required property [response]");
 
-    it('supports passing custom Joi options', () => {
+    it("supports passing custom Joi options", () => {
       const options = {
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200,
+          status: 200,
           body: Joi.object().keys({
-            foo: Joi.string()
-          })
+            foo: Joi.string(),
+          }),
         },
         joiOptions: {
-          just: 'checking'
-        }
+          just: "checking",
+        },
       };
       const contract = new Contract(options);
 
@@ -81,374 +82,390 @@ describe('Contract', () => {
     });
   });
 
-  describe('.validate', () => {
+  describe(".validate", () => {
     beforeEach(() => {
       nock.cleanAll();
     });
 
-    it('does not return an error when the contract is valid', (done) => {
-      nock('http://api.example.com').get('/').reply(200, {
-        foo: 'bar'
+    it("does not return an error when the contract is valid", async (done) => {
+      nock("http://api.example.com").get("/").reply(200, {
+        foo: "bar",
       });
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200,
+          status: 200,
           body: Joi.object().keys({
-            foo: Joi.string()
-          })
-        }
+            foo: Joi.string(),
+          }),
+        },
       });
 
-      contract.validate(done);
+      await contract.validate(done);
     });
 
-    it('returns an error when the contract is broken', (done) => {
-      nock('http://api.example.com').get('/').reply(200, {
-        bar: 'baz'
+    it("returns an error when the contract is broken", async (done) => {
+      nock("http://api.example.com").get("/").reply(200, {
+        bar: "baz",
       });
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200,
+          status: 200,
           body: Joi.object().keys({
-            bar: Joi.number().integer()
-          })
-        }
+            bar: Joi.number().integer(),
+          }),
+        },
       });
 
-      contract.validate((err) => {
+      await contract.validate((err) => {
         assert.ok(err);
-        assert.equal(err.message, 'Contract failed: "body.bar" must be a number');
-        assert.equal(err.detail, 'at res.body,bar got [baz]');
+        assert.equal(
+          err.message,
+          'Contract failed: "body.bar" must be a number',
+        );
+        assert.equal(err.detail, "at res.body,bar got [baz]");
         done();
       });
     });
 
-    it('returns an error when the request fails', (done) => {
-      nock('http://api.example.com').get('/').delayConnection(2000).reply(200, {});
+    it("returns an error when the request fails", async (done) => {
+      nock("http://api.example.com")
+        .get("/")
+        .delayConnection(2000)
+        .reply(200, {});
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/',
-          timeout: 1000
+          url: "http://api.example.com/",
+          timeout: 1000,
         },
         response: {
-          statusCode: 200
-        }
+          status: 200,
+        },
       });
 
-      contract.validate((err) => {
+      await contract.validate((err) => {
         assert.ok(err);
-        assert.equal(err.message, 'Request failed: ESOCKETTIMEDOUT');
+        assert.equal(err.message, "Request failed: ESOCKETTIMEDOUT");
         done();
       });
     });
 
-    it('sets a user-agent header', (done) => {
-      nock('http://api.example.com', {
+    it("sets a user-agent header", async (done) => {
+      nock("http://api.example.com", {
         reqheaders: {
-          'user-agent': 'consumer-contracts/' + require('../package').version
-        }
-      }).get('/').reply(200);
+          "user-agent": "consumer-contracts/" + pkg.version,
+        },
+      })
+        .get("/")
+        .reply(200);
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200
-        }
+          status: 200,
+        },
       });
 
-      contract.validate(done);
+      await contract.validate(done);
     });
 
-    it('supports passing a custom request client', (done) => {
-      nock('http://api.example.com', {
+    it("supports passing a custom request client", async (done) => {
+      nock("http://api.example.com", {
         reqheaders: {
-          authorization: 'Bearer xxx',
-          'user-agent': 'consumer-contracts/' + require('../package').version
-        }
-      }).get('/').reply(200);
+          authorization: "Bearer xxx",
+          "user-agent": "consumer-contracts/" + pkg.version,
+        },
+      })
+        .get("/")
+        .reply(200);
 
-      const client = require('request').defaults({
+      const client = fetch({
         headers: {
-          authorization: 'Bearer xxx'
-        }
+          authorization: "Bearer xxx",
+        },
       });
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200
+          status: 200,
         },
-        client
+        client,
       });
 
-      contract.validate((err) => {
+      await contract.validate((err) => {
         assert.ifError(err);
         done();
       });
     });
 
-    it('runs the before before validating the contact', (done) => {
+    it("runs the before before validating the contact", async (done) => {
       const before = sinon.stub().yields();
 
-      nock('http://api.example.com').get('/').reply(200);
+      nock("http://api.example.com").get("/").reply(200);
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         before,
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200
-        }
+          status: 200,
+        },
       });
 
-      contract.validate((err) => {
+      await contract.validate((err) => {
         assert.ifError(err);
         sinon.assert.called(before);
         done();
       });
     });
 
-    it('returns an error when the before function fails', (done) => {
-      const before = sinon.stub().yields(new Error('Setup error'));
+    it("returns an error when the before function fails", async (done) => {
+      const before = sinon.stub().yields(new Error("Setup error"));
 
-      nock('http://api.example.com').get('/').reply(200);
+      nock("http://api.example.com").get("/").reply(200);
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         before,
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200
-        }
+          status: 200,
+        },
       });
 
-      contract.validate((err) => {
+      await contract.validate((err) => {
         assert.ok(err);
-        assert.equal(err.message, 'Setup error');
+        assert.equal(err.message, "Setup error");
         done();
       });
     });
 
-    it('runs the after function after validating the contact', (done) => {
+    it("runs the after function after validating the contact", async (done) => {
       const after = sinon.stub().yields();
 
-      nock('http://api.example.com').get('/').reply(200);
+      nock("http://api.example.com").get("/").reply(200);
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200
+          status: 200,
         },
-        after
+        after,
       });
 
-      contract.validate((err) => {
+      await contract.validate((err) => {
         assert.ifError(err);
         sinon.assert.called(after);
         done();
       });
     });
 
-    it('returns an error when the after function fails', (done) => {
-      const after = sinon.stub().yields(new Error('Cleanup error'));
+    it("returns an error when the after function fails", async (done) => {
+      const after = sinon.stub().yields(new Error("Cleanup error"));
 
-      nock('http://api.example.com').get('/').reply(200);
+      nock("http://api.example.com").get("/").reply(200);
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200
+          status: 200,
         },
-        after
+        after,
       });
 
-      contract.validate((err) => {
+      await contract.validate((err) => {
         assert.ok(err);
-        assert.equal(err.message, 'Cleanup error');
+        assert.equal(err.message, "Cleanup error");
         done();
       });
     });
 
-    it('applies any custom Joi options', (done) => {
-      nock('http://api.example.com').get('/').reply(200, {
-        bar: 'baz',
-        baz: 'qux'
+    it("applies any custom Joi options", async (done) => {
+      nock("http://api.example.com").get("/").reply(200, {
+        bar: "baz",
+        baz: "qux",
       });
 
       const contract = new Contract({
-        name: 'Name',
-        consumer: 'Consumer',
+        name: "Name",
+        consumer: "Consumer",
         request: {
-          url: 'http://api.example.com/'
+          url: "http://api.example.com/",
         },
         response: {
-          statusCode: 200,
+          status: 200,
           body: Joi.object().keys({
-            bar: Joi.string()
-          })
+            bar: Joi.string(),
+          }),
         },
         joiOptions: {
-          allowUnknown: false
-        }
+          allowUnknown: false,
+        },
       });
 
-      contract.validate((err) => {
+      await contract.validate((err) => {
         assert.ok(err);
         assert.equal(err.message, 'Contract failed: "body.baz" is not allowed');
-        assert.equal(err.detail, 'at res.body,baz got [qux]');
+        assert.equal(err.detail, "at res.body,baz got [qux]");
         done();
       });
     });
 
-    describe('Retry option on', () => {
-      it('does not return an error when the contract is invalid on the first attempt but valid when retried', (done) => {
+    describe("Retry option on", () => {
+      it("does not return an error when the contract is invalid on the first attempt but valid when retried", async (done) => {
         const responses = [
           [500, {}],
           [500, {}],
-          [200, { bar: 'baz' }]
+          [200, { bar: "baz" }],
         ];
         let replyCount = 0;
-        nock('http://api.example.com').get('/').times(3).reply(() => {
-          replyCount++;
-          return responses.shift();
-        });
+        nock("http://api.example.com")
+          .get("/")
+          .times(3)
+          .reply(() => {
+            replyCount++;
+            return responses.shift();
+          });
 
         const contract = new Contract({
-          name: 'Name',
-          consumer: 'Consumer',
+          name: "Name",
+          consumer: "Consumer",
           request: {
-            url: 'http://api.example.com/'
+            url: "http://api.example.com/",
           },
           retries: 2,
           retryDelay: 0,
           response: {
-            statusCode: 200,
+            status: 200,
             body: Joi.object().keys({
-              bar: Joi.string()
-            })
-          }
+              bar: Joi.string(),
+            }),
+          },
         });
 
-        contract.validate((err) => {
+        await contract.validate((err) => {
           assert.ifError(err);
           assert.equal(replyCount, 3);
           done();
         });
       });
 
-      it('returns an error when the contract is invalid on initial and all retry attempts', (done) => {
+      it("returns an error when the contract is invalid on initial and all retry attempts", async (done) => {
         const responses = [
           [500, {}],
           [500, {}],
-          [500, {}]
+          [500, {}],
         ];
         let replyCount = 0;
-        nock('http://api.example.com').get('/').times(3).reply(() => {
-          replyCount++;
-          return responses.shift();
-        });
+        nock("http://api.example.com")
+          .get("/")
+          .times(3)
+          .reply(() => {
+            replyCount++;
+            return responses.shift();
+          });
 
         const contract = new Contract({
-          name: 'Name',
-          consumer: 'Consumer',
+          name: "Name",
+          consumer: "Consumer",
           request: {
-            url: 'http://api.example.com/'
+            url: "http://api.example.com/",
           },
           retries: 2,
           retryDelay: 0,
           response: {
-            statusCode: 200,
+            status: 200,
             body: Joi.object().keys({
-              bar: Joi.string()
-            })
-          }
+              bar: Joi.string(),
+            }),
+          },
         });
 
-        contract.validate((err) => {
+        await contract.validate((err) => {
           assert.equal(replyCount, 3);
           assert.ok(err);
-          assert.equal(err.message, 'Contract failed: "statusCode" must be [200]');
-          assert.equal(err.detail, 'at res.statusCode got [500]');
+          assert.equal(err.message, 'Contract failed: "status" must be [200]');
+          assert.equal(err.detail, "at res.status got [500]");
           done();
         });
       });
 
-      it('waits before retrying if the retryDelay is specified', (done) => {
+      it("waits before retrying if the retryDelay is specified", async (done) => {
         const mockClient = sinon.stub();
         mockClient.defaults = () => {};
         mockClient.onFirstCall().yields(undefined, {
-          statusCode: 500,
+          status: 500,
           request: {},
-          body: {}
+          body: {},
         });
 
         mockClient.onSecondCall().yields(undefined, {
-          statusCode: 200,
+          status: 200,
           request: {},
-          body: { bar: 'baz' }
+          body: { bar: "baz" },
         });
 
         const client = {
-          defaults: () => mockClient
+          defaults: () => mockClient,
         };
 
         const clock = sinon.useFakeTimers();
 
         const contract = new Contract({
-          name: 'Name',
-          consumer: 'Consumer',
+          name: "Name",
+          consumer: "Consumer",
           request: {
-            url: 'http://api.example.com/'
+            url: "http://api.example.com/",
           },
           client,
           retries: 1,
           retryDelay: 2000,
           response: {
-            statusCode: 200,
+            status: 200,
             body: Joi.object().keys({
-              bar: Joi.string()
-            })
-          }
+              bar: Joi.string(),
+            }),
+          },
         });
 
-        contract.validate((err) => {
+        await contract.validate((err) => {
           assert.ifError(err);
           assert.equal(mockClient.callCount, 2);
           done();
@@ -460,6 +477,5 @@ describe('Contract', () => {
         clock.restore();
       });
     });
-
   });
 });

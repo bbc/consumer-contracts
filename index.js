@@ -1,5 +1,6 @@
-'use strict';
+import { Joi } from "joi";
 
-module.exports.Contract = require('./lib/contract');
-module.exports.Joi = require('joi');
-module.exports.validateContracts = require('./lib/validator');
+import { Contract } from "./lib/contract";
+import { validateContracts } from "./lib/validator";
+
+export { Contract, Joi, validateContracts };
