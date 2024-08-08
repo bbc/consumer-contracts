@@ -4,9 +4,9 @@ import { print } from "../lib/formatter.js";
 import nock from 'nock';
 
 describe('runner', () => {
-  beforeEach(() => {
-    nock.cleanAll();
-  });
+  // beforeEach(() => {
+  //   nock.cleanAll();
+  // });
   nock("http://api.example.com").get("/").reply(200, {
     foo: "bar",
   });
