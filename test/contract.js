@@ -87,7 +87,7 @@ describe("Contract", () => {
       nock.cleanAll();
     });
 
-    it("does not return an error when the contract is valid", async (done) => {
+    it("does not return an error when the contract is valid", async () => {
       nock("http://api.example.com").get("/").reply(200, {
         foo: "bar",
       });
@@ -106,10 +106,13 @@ describe("Contract", () => {
         },
       });
 
-      await contract.validate(done);
+      const result = await contract.validate();
+
+      assert.deepEqual(result[0].value.value.body, {foo: 'bar'})
+      assert.notProperty(result[0], 'error')
     });
 
-    it("returns an error when the contract is broken", async (done) => {
+    it("returns an error when the contract is broken", async () => {
       nock("http://api.example.com").get("/").reply(200, {
         bar: "baz",
       });
@@ -128,15 +131,10 @@ describe("Contract", () => {
         },
       });
 
-      await contract.validate((err) => {
-        assert.ok(err);
-        assert.equal(
-          err.message,
-          'Contract failed: "body.bar" must be a number',
-        );
-        assert.equal(err.detail, "at res.body,bar got [baz]");
-        done();
-      });
+      const result = await contract.validate();
+
+      assert.equal(result[0].status, 'rejected');
+      assert.equal(result[0].reason, 'Error: Error: Contract failed: "body.bar" must be a number');
     });
 
     it("returns an error when the request fails", async (done) => {
