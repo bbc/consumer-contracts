@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/bbc/consumer-contracts#readme",
   "dependencies": {
+    "@bbc/http-transport": "^4.5.0",
     "commander": "^12.1.0",
     "debug": "^4.3.5",
     "filehound": "^1.17.6",
