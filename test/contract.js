@@ -1,10 +1,10 @@
 import { assert } from "chai";
 import Joi from "joi";
 import nock from "nock";
-import fetch from "node-fetch";
 import sinon from "sinon";
 
 import { Contract } from "../lib/contract.js";
+import getNodeFetchClient from "../lib/fetch-client.js";
 import pkg from "../package.json" with { type: "json" };
 
 describe("Contract", () => {
@@ -186,7 +186,7 @@ describe("Contract", () => {
     });
 
     it("supports passing a custom request client", async () => {
-      nock("http://api.example.com", {
+      nock("http://api.example.com/", {
         reqheaders: {
           authorization: "Bearer xxx",
           "user-agent": "consumer-contracts/" + pkg.version,
@@ -195,7 +195,7 @@ describe("Contract", () => {
         .get("/")
         .reply(200);
 
-      const client = fetch;
+      const client = getNodeFetchClient();
 
       const contract = new Contract({
         name: "Name",
@@ -416,23 +416,25 @@ describe("Contract", () => {
         });
       });
 
-      it("waits before retrying if the retryDelay is specified", async () => {
+      it("waits before retrying if the retryDelay is specified", async function () {
+        this.timeout(20000);
+
         const mockClient = sinon.stub();
         mockClient.defaults = () => { };
-        mockClient.onFirstCall().yields(undefined, {
+        mockClient.onFirstCall().returns({
           status: 500,
           request: {},
           body: {},
         });
 
-        mockClient.onSecondCall().yields(undefined, {
+        mockClient.onSecondCall().returns({
           status: 200,
           request: {},
           body: { bar: "baz" },
         });
 
         const client = {
-          defaults: mockClient,
+          defaults: () => mockClient,
         };
 
         const clock = sinon.useFakeTimers();
@@ -454,15 +456,17 @@ describe("Contract", () => {
           },
         });
 
-        await contract.validate((err) => {
+        const contractValidation = contract.validate((err) => {
           assert.ifError(err);
           assert.equal(mockClient.callCount, 2);
         });
 
         assert.equal(mockClient.callCount, 1);
-        clock.tick(2000);
+        await clock.tickAsync(2000);
         assert.equal(mockClient.callCount, 2);
         clock.restore();
+
+        return contractValidation;
       });
     });
   });
