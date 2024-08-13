@@ -2,14 +2,16 @@
 
 import { program } from "commander";
 import { runner } from "./runner.js";
+const { version } = require('./../package.json');
 
 program
-  .version(process.env.npm_package_version)
   .command("run [files...]")
   .description(
     "Run the contracts in the ./contracts directory (or just the files specified)",
   )
   .action(runner);
+
+if (version) program.version(version);
 
 program.parse(process.argv);
 

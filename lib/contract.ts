@@ -1,13 +1,14 @@
 import { createBuilder } from "@bbc/http-transport";
 import createDebug from "debug";
-import Joi from "joi";
+import Joi, { ValidationErrorItem, ValidationOptions } from "joi";
 import _ from "lodash";
+const { version } = require('./../package.json');
 
 const debug = createDebug("consumer-contracts");
 
 const requiredOptions = ["name", "consumer", "request", "response"];
 
-function timeout(ms) {
+function timeout(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -16,7 +17,7 @@ const joiOptions = {
   presence: "required",
 };
 
-function validateOptions(options) {
+function validateOptions(options: ContractOptions) {
   options = options || {};
   requiredOptions.forEach((key) => {
     if (!options.hasOwnProperty(key)) {
@@ -25,18 +26,78 @@ function validateOptions(options) {
   });
 }
 
-function createError(detail, path, res) {
+type TransformedRes = {
+  url: string;
+  status: number;
+  statusText: string;
+  headers: Object;
+  body: any;
+};
+
+function createError(detail: ValidationErrorItem, path: (string | number)[], res: TransformedRes) {
   const err = new Error(`Contract failed: ${detail.message}`);
-  err.detail = `at res.${path} got [${_.get(res, path)}]`;
+  (err as any).detail = `at res.${path} got [${_.get(res, path)}]`;
 
   return err;
+}
+
+type ContractRequestHeaders = Object;
+
+type ContractRequest = {
+  timeout?: number;
+  headers?: ContractRequestHeaders;
+  query?: Object;
+  method?: string;
+  json?: boolean;
+  url: string;
+  body?: any;
+}
+
+export type ContractResponse = {
+  url: string;
+  statusCode: number;
+  status: number;
+  statusText: string;
+  headers: ContractRequestHeaders;
+  body?: any;
+}
+
+export type ContractCustomClient = {
+  defaults: (cr: ContractRequest) => (request: ContractRequest) => Promise<ContractResponse>;
+}
+
+export type ContractOptions = {
+  request: ContractRequest;
+  response: Joi.PartialSchemaMap<any> | undefined;
+  name: string;
+  consumer: string;
+  before?: (callback: (val: any) => void) => void;
+  after?: (callback: (val: any) => void) => void;
+  retries?: number;
+  retryDelay?: number;
+  client?: ContractCustomClient;
+  joiOptions?: ValidationOptions;
 }
 
 /**
  * Create a contract with a third party API. Allows for client, request and validation configuration.
  */
 export class Contract {
-  constructor(options) {
+
+  name: string;
+  consumer: string;
+  before?: (callback: (val: any) => void) => void;
+  after?: (callback: (val: any) => void) => void;
+  retries: number;
+  retryDelay: number;
+  _request: ContractRequest;
+  _response: Joi.PartialSchemaMap<any> | undefined;
+  _requestOptions: ContractRequest;
+  _defaultRequestOptions: Partial<ContractRequest>;
+  _client: (request: ContractRequest) => Promise<ContractResponse>;
+  joiOptions: ValidationOptions;
+
+  constructor(options: ContractOptions) {
     validateOptions(options);
     this.name = options.name;
     this.consumer = options.consumer;
@@ -46,29 +107,29 @@ export class Contract {
     this.retryDelay = options.retryDelay || 0;
 
     this._request = options.request;
-    this._defaultOptions = {
+    this._defaultRequestOptions = {
       json: true,
       headers: {
-        "user-agent": "consumer-contracts/" + process.env.npm_package_version,
+        "user-agent": "consumer-contracts/" + version,
       },
     };
-    this._options = _.merge({}, this._defaultOptions, this._request);
+    this._requestOptions = _.merge({}, this._defaultRequestOptions, this._request);
     this._response = options.response;
 
     if (options.client) {
-      this._client = options.client.defaults(this._options);
+      this._client = options.client.defaults(this._requestOptions);
     }
     else {
       // build http transport based client
       const builder = createBuilder();
 
       const httpTransportClient = builder.createClient()
-        .timeout(this._options.timeout || 0)
-        .headers(this._options.headers)
-        .query(this._options.query);
+        .timeout(this._requestOptions.timeout || 0)
+        .headers(this._requestOptions.headers || {})
+        .query(this._requestOptions.query || {});
 
-      this._client = async function (request) {
-        return httpTransportClient[(this._request.method || "get").toLowerCase()](request.url).asResponse();
+      this._client = async function (request: ContractRequest) {
+        return (<any>httpTransportClient)[(this._request.method || "get").toLowerCase()](request.url, request.body).asResponse();
       }
     }
 
@@ -80,13 +141,13 @@ export class Contract {
    * @param {*} callback a callback that contains errors if there were any. Expected to be called with no arguments if the validation succeeded.
    * @returns void
    */
-  async validate(callback) {
+  async validate(callback: (err: any, results: any) => void) {
     const schema = Joi.object().keys(this._response);
 
     if (this.before) {
       let beforeHasErrored = false;
       this.before((val) => {
-        callback(val);
+        callback(val, undefined);
         if (val instanceof Error) beforeHasErrored = true;
       });
       if (beforeHasErrored) return;
@@ -118,7 +179,7 @@ export class Contract {
           } else {
             const detail = schemaValidationResult.error.details[0];
             const path = detail.path;
-            return callback(createError(detail, path, resWithEvaluatedBody));
+            return callback(createError(detail, path, resWithEvaluatedBody), undefined);
           }
         } else {
           retries = -1;
@@ -126,19 +187,19 @@ export class Contract {
         }
       }
     } catch (error) {
-      callback(error);
+      callback(error, undefined);
       return;
     }
 
     if (this.after) {
       let afterHasErrored = false;
       this.after((val) => {
-        callback(val);
+        callback(val, undefined);
         if (val instanceof Error) afterHasErrored = true;
       });
       if (afterHasErrored) return;
     }
 
-    callback();
+    callback(undefined, undefined);
   }
 }

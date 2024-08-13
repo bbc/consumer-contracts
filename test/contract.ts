@@ -1,11 +1,11 @@
 import { assert } from "chai";
-import Joi from "joi";
+import Joi, { ValidationOptions } from "joi";
+import { beforeEach, describe, it } from 'mocha';
 import nock from "nock";
 import sinon from "sinon";
-
-import { Contract } from "../lib/contract.js";
+import { Contract, ContractOptions } from "../lib/contract.js";
 import getNodeFetchClient from "../lib/fetch-client.js";
-import pkg from "../package.json" with { type: "json" };
+const { version } = require('./../package.json');
 
 describe("Contract", () => {
   it("throws an error when the name is missing", () => {
@@ -18,7 +18,7 @@ describe("Contract", () => {
         response: {
           status: 200,
         },
-      });
+      } as unknown as ContractOptions);
     }, "Invalid contract: Missing required property [name]");
   });
 
@@ -32,7 +32,7 @@ describe("Contract", () => {
         response: {
           status: 200,
         },
-      });
+      } as unknown as ContractOptions);
     }, "Invalid contract: Missing required property [consumer]");
   });
 
@@ -44,7 +44,7 @@ describe("Contract", () => {
         response: {
           status: 200,
         },
-      });
+      } as unknown as ContractOptions);
     }, "Invalid contract: Missing required property [request]");
   });
 
@@ -56,7 +56,7 @@ describe("Contract", () => {
         request: {
           url: "http://api.example.com/",
         },
-      });
+      } as unknown as ContractOptions);
     }, "Invalid contract: Missing required property [response]");
 
     it("supports passing custom Joi options", () => {
@@ -74,11 +74,11 @@ describe("Contract", () => {
         },
         joiOptions: {
           just: "checking",
-        },
+        } as unknown as ValidationOptions,
       };
       const contract = new Contract(options);
 
-      assert.equal(contract.joiOptions.just, options.joiOptions.just);
+      assert.equal((contract.joiOptions as any).just, (options.joiOptions as any).just);
     });
   });
 
@@ -165,7 +165,7 @@ describe("Contract", () => {
     it("sets a user-agent header", async () => {
       nock("http://api.example.com", {
         reqheaders: {
-          "user-agent": "consumer-contracts/" + pkg.version,
+          "user-agent": "consumer-contracts/" + version,
         },
       })
         .get("/")
@@ -189,7 +189,7 @@ describe("Contract", () => {
       nock("http://api.example.com/", {
         reqheaders: {
           authorization: "Bearer xxx",
-          "user-agent": "consumer-contracts/" + pkg.version,
+          "user-agent": "consumer-contracts/" + version,
         },
       })
         .get("/")
@@ -420,7 +420,6 @@ describe("Contract", () => {
         this.timeout(20000);
 
         const mockClient = sinon.stub();
-        mockClient.defaults = () => { };
         mockClient.onFirstCall().returns({
           status: 500,
           request: {},

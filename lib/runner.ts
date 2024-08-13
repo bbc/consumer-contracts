@@ -8,36 +8,36 @@ import { print } from "./formatter.js";
 import { logger } from "./logger.js";
 import { validateContracts } from "./validator.js";
 
-function isEmpty(obj) {
+function isEmpty(obj: Object) {
   return Object.keys(obj).length === 0;
 }
 
-async function loadContract(file) {
-  const { contract } = await import(file);
+async function importContract(filepath: string) {
+  const { contract } = await import(filepath);
   return contract;
 }
 
-async function loadContracts(file) {
-  const contract = await loadContract(file);
+async function loadContract(filepath: string) {
+  const contract = await importContract(filepath);
 
   if (contract instanceof Contract) {
     if (isEmpty(contract)) {
-      throw new Error(`No contract defined for '${file}'`);
+      throw new Error(`No contract defined for '${filepath}'`);
     }
     return Promise.resolve(contract);
   }
   return contract;
 }
 
-async function validateFiles(files) {
+async function validateFiles(filepaths: string[]) {
   let contracts;
 
   try {
-    contracts = await Promise.all(files.map(loadContracts));
+    contracts = await Promise.all(filepaths.map(loadContract));
     contracts = contracts.flat();
-  } catch (err) {
-    err.message = "Failed to load contract: " + err.message;
-    logger.error(err.stack);
+  } catch (err: unknown) {
+    (err as Error).message = "Failed to load contract: " + (err as Error).message;
+    logger.error((err as Error).stack);
     return process.exit(1);
   }
 
@@ -49,7 +49,7 @@ async function validateFiles(files) {
     const totalPassed = totalCompleted - totalFailed;
     const exitCode = (failures.length > 0) ? 1 : 0;
 
-    results = results.map((r, i) => ({ ...r[0], contract: contracts[i] }));
+    results = results.map((r: any, i: number) => ({ ...r[0], contract: contracts[i] }));
 
     print({
       results,
@@ -63,13 +63,13 @@ async function validateFiles(files) {
   });
 }
 
-export async function runner(files) {
-  if (files.length > 0) {
-    files = files.map((file) => {
+export async function runner(filepaths: string[]) {
+  if (filepaths.length > 0) {
+    filepaths = filepaths.map((file) => {
       return path.join(process.cwd(), file);
     });
 
-    return await validateFiles(files);
+    return await validateFiles(filepaths);
   }
 
   const dir = path.join(process.cwd(), "contracts");

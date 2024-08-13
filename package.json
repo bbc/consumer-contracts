@@ -3,7 +3,6 @@
   "version": "4.2.2",
   "description": "Consumer driven contracts for Node.js",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "mocha",
     "lint": "eslint .",
@@ -44,6 +43,12 @@
     "picocolors": "^1.0.1"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.42",
+    "@types/chai": "^4.3.17",
+    "@types/debug": "^4.1.12",
+    "@types/lodash": "^4.17.7",
+    "@types/mocha": "^10.0.7",
+    "@types/sinon": "^17.0.3",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "chai": "^5.1.1",
@@ -54,7 +59,9 @@
     "mocha": "^10.6.0",
     "nock": "^13.5.4",
     "prettier": "^3.3.2",
-    "sinon": "^18.0.0"
+    "sinon": "^18.0.0",
+    "tsx": "^4.17.0",
+    "typescript": "^5.5.4"
   },
   "eslintConfig": {
     "extends": [
@@ -66,5 +73,17 @@
       "sourceType": "module"
     },
     "rules": {}
+  },
+  "mocha": {
+    "exit": true,
+    "recursive": true,
+    "full-trace": true,
+    "extension": [
+      "ts"
+    ],
+    "node-option": [
+      "import=tsx"
+    ],
+    "timeout": 5000
   }
 }
