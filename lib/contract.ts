@@ -2,7 +2,7 @@ import { createBuilder } from "@bbc/http-transport";
 import createDebug from "debug";
 import Joi, { ValidationErrorItem, ValidationOptions } from "joi";
 import _ from "lodash";
-const { version } = require('./../package.json');
+const { version } = require('./../../package.json');
 
 const debug = createDebug("consumer-contracts");
 
@@ -164,6 +164,7 @@ export class Contract {
         const resWithEvaluatedBody = {
           url: clientResponse.url,
           status: clientResponse.statusCode || clientResponse.status,
+          statusCode: clientResponse.statusCode || clientResponse.status,
           statusText: clientResponse.statusText,
           headers: clientResponse.headers,
           body: clientResponse.body,

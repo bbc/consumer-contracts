@@ -12,13 +12,8 @@ function isEmpty(obj: Object) {
   return Object.keys(obj).length === 0;
 }
 
-async function importContract(filepath: string) {
-  const { contract } = await import(filepath);
-  return contract;
-}
-
 async function loadContract(filepath: string) {
-  const contract = await importContract(filepath);
+  const contract = require(filepath);
 
   if (contract instanceof Contract) {
     if (isEmpty(contract)) {
@@ -88,6 +83,9 @@ export async function runner(filepaths: string[]) {
         logger.error(err.message);
         return process.exit(1);
       }
+
+      console.log('files', files);
+
       return validateFiles(files);
     });
 }

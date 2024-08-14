@@ -2,7 +2,7 @@
 
 import { program } from "commander";
 import { runner } from "./runner.js";
-const { version } = require('./../package.json');
+const { version } = require('./../../package.json');
 
 program
   .command("run [files...]")

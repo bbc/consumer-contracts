@@ -2,7 +2,7 @@
   "name": "@bbc/consumer-contracts",
   "version": "4.2.2",
   "description": "Consumer driven contracts for Node.js",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "mocha",
     "lint": "eslint .",
@@ -12,7 +12,7 @@
     "format:check": "prettier --check \"**/*.{js,json,jsx,md,ts,tsx,html}\""
   },
   "bin": {
-    "consumer-contracts": "./lib/cli.js"
+    "consumer-contracts": "./dist/lib/cli.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -39,7 +39,7 @@
     "filehound": "^1.17.6",
     "joi": "^17.13.3",
     "lodash": "^4.17.21",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.7.0",
     "picocolors": "^1.0.1"
   },
   "devDependencies": {
