@@ -25,7 +25,7 @@ async function loadContract(filepath: string) {
 }
 
 async function validateFiles(filepaths: string[]) {
-  let contracts;
+  let contracts: Contract[];
 
   try {
     contracts = await Promise.all(filepaths.map(loadContract));
@@ -33,7 +33,7 @@ async function validateFiles(filepaths: string[]) {
   } catch (err: unknown) {
     (err as Error).message = "Failed to load contract: " + (err as Error).message;
     logger.error((err as Error).stack);
-    return process.exit(1);
+    process.exit(1);
   }
 
   // [{ contract, err }, ...]

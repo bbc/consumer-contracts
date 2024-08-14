@@ -2,6 +2,7 @@ import { createBuilder } from "@bbc/http-transport";
 import createDebug from "debug";
 import Joi, { ValidationErrorItem, ValidationOptions } from "joi";
 import _ from "lodash";
+import { ValidationResult } from "./formatter";
 const { version } = require('./../../package.json');
 
 const debug = createDebug("consumer-contracts");
@@ -26,15 +27,16 @@ function validateOptions(options: ContractOptions) {
   });
 }
 
-type TransformedRes = {
+export type TransformedResponse = {
   url: string;
   status: number;
+  statusCode: number;
   statusText: string;
   headers: Object;
   body: any;
 };
 
-function createError(detail: ValidationErrorItem, path: (string | number)[], res: TransformedRes) {
+function createError(detail: ValidationErrorItem, path: (string | number)[], res: TransformedResponse) {
   const err = new Error(`Contract failed: ${detail.message}`);
   (err as any).detail = `at res.${path} got [${_.get(res, path)}]`;
 
@@ -141,9 +143,9 @@ export class Contract {
    * @param {*} callback a callback that contains errors if there were any. Expected to be called with no arguments if the validation succeeded.
    * @returns void
    */
-  async validate(callback: (err: any, results: any) => void) {
+  async validate(callback: (err: any, result: ValidationResult | undefined) => void) {
     const schema = Joi.object().keys(this._response);
-
+    let schemaValidationResult;
     if (this.before) {
       let beforeHasErrored = false;
       this.before((val) => {
@@ -161,7 +163,7 @@ export class Contract {
 
         const clientResponse = await this._client(this._request);
 
-        const resWithEvaluatedBody = {
+        const resWithEvaluatedBody: TransformedResponse = {
           url: clientResponse.url,
           status: clientResponse.statusCode || clientResponse.status,
           statusCode: clientResponse.statusCode || clientResponse.status,
@@ -172,7 +174,7 @@ export class Contract {
 
         debug(`${resWithEvaluatedBody.url} ${resWithEvaluatedBody.status}`);
 
-        const schemaValidationResult = schema.validate(resWithEvaluatedBody, this.joiOptions);
+        schemaValidationResult = schema.validate(resWithEvaluatedBody, this.joiOptions);
         if (schemaValidationResult.error) {
           if (retries > 0) {
             retries -= 1;
@@ -180,7 +182,8 @@ export class Contract {
           } else {
             const detail = schemaValidationResult.error.details[0];
             const path = detail.path;
-            return callback(createError(detail, path, resWithEvaluatedBody), undefined);
+            callback(createError(detail, path, resWithEvaluatedBody), undefined);
+            return;
           }
         } else {
           retries = -1;
@@ -201,6 +204,6 @@ export class Contract {
       if (afterHasErrored) return;
     }
 
-    callback(undefined, undefined);
+    callback(undefined, schemaValidationResult);
   }
 }

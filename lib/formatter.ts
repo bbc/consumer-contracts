@@ -1,9 +1,9 @@
 import colors from "picocolors";
 
-import { Contract } from "./contract.js";
+import { Contract, TransformedResponse } from "./contract.js";
 import { logger } from "./logger.js";
 
-function addErrIndicies(results: ValidationResult[]) {
+function addErrIndicies(results: ValidationResultWithContext[]) {
   let errIndex = 1;
 
   results.forEach((result) => {
@@ -13,7 +13,7 @@ function addErrIndicies(results: ValidationResult[]) {
   });
 }
 
-function printResult(result: ValidationResult) {
+function printResult(result: ValidationResultWithContext) {
   const consumer = result.contract.consumer;
   const name = result.contract.name;
 
@@ -38,10 +38,14 @@ function printFailure(failure: ValidationFailure, i: number) {
   logger.log("");
 }
 
-type ValidationResult = {
+export type ValidationResult = {
+  value?: TransformedResponse;
+}
+
+export type ValidationResultWithContext = ValidationResult & {
   contract: Contract;
   err: any;
-  errIndex: number;
+  errIndex?: number;
 };
 
 type ValidationFailure = {
@@ -50,7 +54,7 @@ type ValidationFailure = {
 };
 
 type ValidationContext = {
-  results: ValidationResult[];
+  results: ValidationResultWithContext[];
   failures: ValidationFailure[];
   totalCompleted: number;
   totalFailed: number;
