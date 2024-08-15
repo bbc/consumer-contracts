@@ -84,8 +84,6 @@ export async function runner(filepaths: string[]) {
         return process.exit(1);
       }
 
-      console.log('files', files);
-
       return validateFiles(files);
     });
 }

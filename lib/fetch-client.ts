@@ -1,18 +1,25 @@
-import _ from "lodash";
-import fetch from "node-fetch";
-import { ContractCustomClient, ContractResponse } from "./contract";
-import { RequestInit } from "node-fetch";
+import fetch, { RequestInit } from "node-fetch";
+import { ContractCustomAsyncClient, ContractRequest, ContractResponse } from "./contract";
 
 /**
- * A basic fetch client that matches the required interface to Contract.client. Use this instead of fetch directly.
+ * A basic fetch client that matches the required interface to Contract.asyncClient. Use this instead of fetch directly.
  */
-function getNodeFetchClient(): ContractCustomClient {
-  return {
-    defaults: (defaultOptions) => {
-      return (options) => fetch(options.url, _.merge({}, defaultOptions, options) as unknown as RequestInit)
-        .then(resp => (resp as unknown as ContractResponse));
-    },
-  };
+const fetchAsyncClientInterface: ContractCustomAsyncClient = {
+  get: async (url: string, request: ContractRequest) => {
+    return fetch(request.url, request as unknown as RequestInit) as unknown as ContractResponse;
+  },
+  post: async (url: string, body: any, request: ContractRequest) => {
+    return fetch(request.url, request as unknown as RequestInit) as unknown as ContractResponse;
+  },
+  patch: async (url: string, body: any, request: ContractRequest) => {
+    return fetch(request.url, request as unknown as RequestInit) as unknown as ContractResponse;
+  },
+  put: async (url: string, body: any, request: ContractRequest) => {
+    return fetch(request.url, request as unknown as RequestInit) as unknown as ContractResponse;
+  },
+  delete: async (url: string, request: ContractRequest) => {
+    return fetch(request.url, request as unknown as RequestInit) as unknown as ContractResponse;
+  },
 }
 
-export default getNodeFetchClient;
+export default fetchAsyncClientInterface;

@@ -2,7 +2,10 @@
   "compilerOptions": {
     "target": "ES2017",
     "module": "CommonJS",
-    "lib": ["ES2017", "DOM"],
+    "lib": [
+      "ES2017",
+      "DOM"
+    ],
     "moduleResolution": "Node10",
     "outDir": "./dist",
     "strict": true,
@@ -17,6 +20,12 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
   },
-  "include": ["index.ts", "lib/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "index.ts",
+    "lib/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

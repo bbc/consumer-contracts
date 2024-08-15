@@ -9,7 +9,8 @@
     "posttest": "npm run lint",
     "coverage": "istanbul cover _mocha -- -R dot",
     "format": "prettier --log-level warn --write \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
-    "format:check": "prettier --check \"**/*.{js,json,jsx,md,ts,tsx,html}\""
+    "format:check": "prettier --check \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
+    "build": "tsc"
   },
   "bin": {
     "consumer-contracts": "./dist/lib/cli.js"

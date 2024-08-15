@@ -4,8 +4,8 @@ import { beforeEach, describe, it } from 'mocha';
 import nock from "nock";
 import sinon from "sinon";
 import { Contract, ContractOptions } from "../lib/contract.js";
-import getNodeFetchClient from "../lib/fetch-client.js";
-const { version } = require('./../package.json');
+import fetchClient from "../lib/fetch-client.js";
+const { version } = require('./../../package.json');
 
 describe("Contract", () => {
   it("throws an error when the name is missing", () => {
@@ -195,7 +195,7 @@ describe("Contract", () => {
         .get("/")
         .reply(200);
 
-      const client = getNodeFetchClient();
+      const asyncClient = fetchClient;
 
       const contract = new Contract({
         name: "Name",
@@ -209,7 +209,7 @@ describe("Contract", () => {
         response: {
           status: 200,
         },
-        client,
+        asyncClient,
       });
 
       return contract.validate((err) => {
@@ -417,24 +417,18 @@ describe("Contract", () => {
       });
 
       it("waits before retrying if the retryDelay is specified", async function () {
-        this.timeout(20000);
-
         const mockClient = sinon.stub();
-        mockClient.onFirstCall().returns({
+        mockClient.onFirstCall().resolves({
           status: 500,
           request: {},
           body: {},
         });
 
-        mockClient.onSecondCall().returns({
+        mockClient.onSecondCall().resolves({
           status: 200,
           request: {},
           body: { bar: "baz" },
         });
-
-        const client = {
-          defaults: () => mockClient,
-        };
 
         const clock = sinon.useFakeTimers();
 
@@ -444,7 +438,6 @@ describe("Contract", () => {
           request: {
             url: "http://api.example.com/",
           },
-          client,
           retries: 1,
           retryDelay: 2000,
           response: {
@@ -454,6 +447,8 @@ describe("Contract", () => {
             }),
           },
         });
+
+        contract._client = mockClient;
 
         const contractValidation = contract.validate((err) => {
           assert.ifError(err);
