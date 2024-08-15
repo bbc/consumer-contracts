@@ -2,19 +2,21 @@
   "name": "@bbc/consumer-contracts",
   "version": "4.2.2",
   "description": "Consumer driven contracts for Node.js",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "mocha",
     "lint": "eslint .",
-    "prepare": "husky install",
     "posttest": "npm run lint",
-    "coverage": "istanbul cover _mocha -- -R dot"
+    "coverage": "istanbul cover _mocha -- -R dot",
+    "format": "prettier --log-level warn --write \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
+    "format:check": "prettier --check \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
+    "build": "tsc"
   },
   "bin": {
-    "consumer-contracts": "./lib/cli.js"
+    "consumer-contracts": "./dist/lib/cli.js"
   },
   "engines": {
-    "node": ">14.0.0"
+    "node": ">=18.0.0"
   },
   "preferGlobal": true,
   "repository": {
@@ -32,33 +34,57 @@
   },
   "homepage": "https://github.com/bbc/consumer-contracts#readme",
   "dependencies": {
-    "async": "^3.2.2",
-    "chalk": "^4.1.2",
-    "commander": "^8.3.0",
-    "debug": "^4.3.2",
-    "filehound": "^1.5.1",
-    "joi": "^17.4.2",
-    "lodash": "^4.13.0",
-    "request": "^2.88.2"
+    "@bbc/http-transport": "^4.5.0",
+    "commander": "^12.1.0",
+    "debug": "^4.3.5",
+    "filehound": "^1.17.6",
+    "joi": "^17.13.3",
+    "lodash": "^4.17.21",
+    "node-fetch": "^2.7.0",
+    "picocolors": "^1.0.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^14.1.0",
-    "@commitlint/config-conventional": "^14.1.0",
-    "chai": "^4.3.4",
-    "eslint": "^8.1.0",
-    "eslint-config-iplayer": "^8.0.0",
-    "eslint-plugin-mocha": "^9.0.0",
-    "husky": "^7.0.4",
-    "istanbul": "^0.4.2",
-    "lint-staged": "^11.2.6",
-    "mocha": "^9.1.3",
-    "nock": "^13.1.4",
-    "sinon": "^11.1.2"
-  },
-  "lint-staged": {
-    "*.js": "eslint --fix"
+    "@types/bluebird": "^3.5.42",
+    "@types/chai": "^4.3.17",
+    "@types/debug": "^4.1.12",
+    "@types/lodash": "^4.17.7",
+    "@types/mocha": "^10.0.7",
+    "@types/sinon": "^17.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "chai": "^5.1.1",
+    "eslint": "^8.57.0",
+    "eslint-config-iplayer": "^9.2.0",
+    "eslint-plugin-mocha": "^10.4.3",
+    "istanbul": "^0.4.5",
+    "mocha": "^10.6.0",
+    "nock": "^13.5.4",
+    "prettier": "^3.3.2",
+    "sinon": "^18.0.0",
+    "tsx": "^4.17.0",
+    "typescript": "^5.5.4"
   },
   "eslintConfig": {
-    "extends": "iplayer"
+    "extends": [
+      "iplayer/base",
+      "iplayer/ts",
+      "prettier"
+    ],
+    "parserOptions": {
+      "sourceType": "module"
+    },
+    "rules": {}
+  },
+  "mocha": {
+    "exit": true,
+    "recursive": true,
+    "full-trace": true,
+    "extension": [
+      "ts"
+    ],
+    "node-option": [
+      "import=tsx"
+    ],
+    "timeout": 5000
   }
 }

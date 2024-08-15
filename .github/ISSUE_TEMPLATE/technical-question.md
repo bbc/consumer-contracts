@@ -1,10 +1,9 @@
 ---
 name: Technical question
 about: Want to ask a technical question about the project
-title: ''
+title: ""
 labels: question
-assignees: ''
-
+assignees: ""
 ---
 
 **Question**
