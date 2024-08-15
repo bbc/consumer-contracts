@@ -3,7 +3,7 @@ import createDebug from "debug";
 import Joi, { ValidationErrorItem, ValidationOptions } from "joi";
 import _ from "lodash";
 import { ValidationResult } from "./formatter";
-const { version } = require('./../../package.json');
+const { version } = require('./../package.json');
 
 const debug = createDebug("consumer-contracts");
 

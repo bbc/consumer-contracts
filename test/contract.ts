@@ -5,7 +5,7 @@ import nock from "nock";
 import sinon from "sinon";
 import { Contract, ContractOptions } from "../lib/contract.js";
 import fetchClient from "../lib/fetch-client.js";
-const { version } = require('./../../package.json');
+const { version } = require('./../package.json');
 
 describe("Contract", () => {
   it("throws an error when the name is missing", () => {
