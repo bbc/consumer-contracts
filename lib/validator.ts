@@ -8,9 +8,12 @@ import { ValidationResultWithContext } from "./formatter";
  */
 export async function validateContracts(contracts: Contract[], cb: (err: any, results: ValidationResultWithContext[]) => void) {
   let schemaValidationResults: ValidationResultWithContext[] = [];
-  await Promise.all(contracts.map(contract => contract.validate((err, result) => {
-    schemaValidationResults.push({ err, ...result, contract, });
-  })));
+
+  for (const contract of contracts) {
+    await contract.validate((err, result) => {
+      schemaValidationResults.push({ err, ...result, contract });
+    });
+  }
 
   cb(undefined, schemaValidationResults);
 };
