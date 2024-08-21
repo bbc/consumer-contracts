@@ -1,10 +1,6 @@
 import { Contract } from "./contract";
 import { ValidationResultWithContext } from "./formatter";
 
-// this helps to deal with asynchronous dns processing.
-// see: https://stackoverflow.com/questions/24320578/node-js-get-request-etimedout-esockettimedout
-process.env.UV_THREADPOOL_SIZE = '64';
-
 /**
  * Validates all of the contracts. 
  * @param contracts The collection of contracts to validate.
@@ -14,8 +10,11 @@ export async function validateContracts(contracts: Contract[], cb: (err: any, re
   let schemaValidationResults: ValidationResultWithContext[] = [];
 
   for (const contract of contracts) {
-    await contract.validate((err, result) => {
-      schemaValidationResults.push({ err, ...result, contract });
+    await new Promise<void>((resolve, reject) => {
+      contract.validate((err, result) => {
+        schemaValidationResults.push({ err, ...result, contract });
+        resolve();
+      });
     });
   }
 
