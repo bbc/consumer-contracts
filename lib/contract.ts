@@ -178,7 +178,8 @@ export class Contract {
       const httpTransportClient = builder.createClient()
         .timeout(this._requestOptions.timeout || 0)
         .headers(this._requestOptions.headers || {})
-        .query(this._requestOptions.query || {});
+        .query(this._requestOptions.query || {})
+        .redirect('manual');
 
       this._client = async function (request: ContractRequest) {
         return (<any>httpTransportClient)[(this._request.method || "get").toLowerCase()](request.url, request.body).asResponse();
