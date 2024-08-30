@@ -22,7 +22,8 @@
   },
   "include": [
     "index.ts",
-    "lib/**/*"
+    "lib/**/*",
+    "package.json"
   ],
   "exclude": [
     "node_modules",
