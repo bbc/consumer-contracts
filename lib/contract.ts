@@ -95,8 +95,18 @@ export type ContractOptions = {
   response: Joi.PartialSchemaMap<any> | undefined;
   name: string;
   consumer: string;
+  /**
+   * Supports old style setup functions such as those used in conjunction with the now retired \@ibl/request library.
+   * @deprecated use asyncBefore instead
+   */
   before?: (callback: (val: any) => void) => void;
+  /**
+   * Supports old tear-down setup functions such as those used in conjunction with the now retired \@ibl/request library.
+   * @deprecated use asyncAfter instead
+   */
   after?: (callback: (val: any) => void) => void;
+  asyncBefore?: () => Promise<unknown>
+  asyncAfter?: () => Promise<unknown>
   retries?: number;
   retryDelay?: number;
   joiOptions?: ValidationOptions;
@@ -117,8 +127,10 @@ export type ContractOptions = {
 export class Contract {
   name: string;
   consumer: string;
-  before?: (callback: (val: any) => void) => void;
-  after?: (callback: (val: any) => void) => void;
+  before?: ContractOptions['before'];
+  after?: ContractOptions['after'];
+  asyncBefore?: ContractOptions['asyncBefore'];
+  asyncAfter?: ContractOptions['asyncAfter'];
   retries: number;
   retryDelay: number;
   _request: ContractRequest;
@@ -134,6 +146,8 @@ export class Contract {
     this.consumer = options.consumer;
     this.before = options.before;
     this.after = options.after;
+    this.asyncBefore = options.asyncBefore;
+    this.asyncAfter = options.asyncAfter;
     this.retries = options.retries || 0;
     this.retryDelay = options.retryDelay || 0;
 
@@ -206,6 +220,15 @@ export class Contract {
       if (beforeHasErrored) return;
     }
 
+    if (this.asyncBefore) {
+      try {
+        await this.asyncBefore();
+      } catch (error) {
+        callback(error, undefined);
+        return;
+      }
+    }
+
     try {
       let retries = this.retries;
 
@@ -253,6 +276,15 @@ export class Contract {
         if (val instanceof Error) afterHasErrored = true;
       });
       if (afterHasErrored) return;
+    }
+
+    if (this.asyncAfter) {
+      try {
+        await this.asyncAfter();
+      } catch (error) {
+        callback(error, undefined);
+        return;
+      }
     }
 
     callback(undefined, schemaValidationResult);

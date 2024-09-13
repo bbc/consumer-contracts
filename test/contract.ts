@@ -263,6 +263,52 @@ describe("Contract", () => {
       });
     });
 
+    it("runs the asyncBefore validating the contact", async () => {
+      const asyncBefore = sinon.stub().resolves();
+
+      nock("http://api.example.com").get("/").reply(200);
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        asyncBefore,
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+      });
+
+      return contract.validate((err) => {
+        assert.ifError(err);
+        sinon.assert.called(asyncBefore);
+      });
+    });
+
+    it("returns an error when the asyncBefore function fails", async () => {
+      const asyncBefore = sinon.stub().rejects(new Error("Setup error"));
+
+      nock("http://api.example.com").get("/").reply(200);
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        asyncBefore,
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+      });
+
+      return contract.validate((err) => {
+        assert.ok(err);
+        assert.equal(err.message, "Setup error");
+      });
+    });
+
     it("runs the after function after validating the contact", async () => {
       const after = sinon.stub().yields();
 
@@ -308,6 +354,54 @@ describe("Contract", () => {
         assert.equal(err.message, "Cleanup error");
       });
     });
+
+
+    it("runs the asyncAfter function after validating the contact", async () => {
+      const asyncAfter = sinon.stub().resolves();
+
+      nock("http://api.example.com").get("/").reply(200);
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+        asyncAfter,
+      });
+
+      return contract.validate((err) => {
+        assert.ifError(err);
+        sinon.assert.called(asyncAfter);
+      });
+    });
+
+    it("returns an error when the asyncAfter function fails", async () => {
+      const asyncAfter = sinon.stub().rejects(new Error("Cleanup error"));
+
+      nock("http://api.example.com").get("/").reply(200);
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+        asyncAfter,
+      });
+
+      return contract.validate((err) => {
+        assert.ok(err);
+        assert.equal(err.message, "Cleanup error");
+      });
+    });
+
 
     it("applies any custom Joi options", async () => {
       nock("http://api.example.com").get("/").reply(200, {
