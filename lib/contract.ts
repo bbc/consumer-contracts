@@ -27,6 +27,13 @@ function validateOptions(options: ContractOptions) {
   });
 }
 
+export function assertIsAsyncBeforeAfter(fn: BeforeAfterFn): asserts fn is () => Promise<void> {
+  if (fn.length !== 0) {
+    throw new Error('Asynchronous before functions do not accept callbacks!')
+  }
+}
+
+
 export type TransformedResponse = {
   url: string;
   status: number;
@@ -90,13 +97,15 @@ export type ContractCustomAsyncClient = {
   delete: (url: string, request: ContractRequest) => Promise<ContractResponse>,
 }
 
+type BeforeAfterFn = (() => Promise<unknown>) | ((callback: (val: any) => void) => void);
+
 export type ContractOptions = {
   request: ContractRequest;
   response: Joi.PartialSchemaMap<any> | undefined;
   name: string;
   consumer: string;
-  before?: (callback: (val: any) => void) => void;
-  after?: (callback: (val: any) => void) => void;
+  before?: BeforeAfterFn;
+  after?: BeforeAfterFn;
   retries?: number;
   retryDelay?: number;
   joiOptions?: ValidationOptions;
@@ -117,8 +126,8 @@ export type ContractOptions = {
 export class Contract {
   name: string;
   consumer: string;
-  before?: (callback: (val: any) => void) => void;
-  after?: (callback: (val: any) => void) => void;
+  before?: ContractOptions['before'];
+  after?: ContractOptions['after'];
   retries: number;
   retryDelay: number;
   _request: ContractRequest;
@@ -198,12 +207,25 @@ export class Contract {
     const schema = Joi.object().keys(this._response);
     let schemaValidationResult;
     if (this.before) {
-      let beforeHasErrored = false;
-      this.before((val) => {
-        callback(val, undefined);
-        if (val instanceof Error) beforeHasErrored = true;
-      });
-      if (beforeHasErrored) return;
+      if (this.before.constructor.name === 'AsyncFunction') {
+        // Promise-based before
+        assertIsAsyncBeforeAfter(this.before);
+
+        try {
+          await this.before();
+        } catch (error) {
+          callback(error, undefined);
+          return;
+        }
+      } else {
+        // Old-style callback before
+        let beforeHasErrored = false;
+        this.before((val) => {
+          callback(val, undefined);
+          if (val instanceof Error) beforeHasErrored = true;
+        });
+        if (beforeHasErrored) return;
+      }
     }
 
     try {
@@ -247,12 +269,25 @@ export class Contract {
     }
 
     if (this.after) {
-      let afterHasErrored = false;
-      this.after((val) => {
-        callback(val, undefined);
-        if (val instanceof Error) afterHasErrored = true;
-      });
-      if (afterHasErrored) return;
+      if (this.after.constructor.name === 'AsyncFunction') {
+        // Promise-based after
+        assertIsAsyncBeforeAfter(this.after);
+
+        try {
+          await this.after();
+        } catch (error) {
+          callback(error, undefined);
+          return;
+        }
+      } else {
+        // Old-style callback after
+        let afterHasErrored = false;
+        this.after((val) => {
+          callback(val, undefined);
+          if (val instanceof Error) afterHasErrored = true;
+        });
+        if (afterHasErrored) return;
+      }
     }
 
     callback(undefined, schemaValidationResult);

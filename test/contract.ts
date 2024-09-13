@@ -263,6 +263,55 @@ describe("Contract", () => {
       });
     });
 
+    it("runs the async before validating the contact", async () => {
+      async function asyncBefore() {
+        // noop
+      }
+
+      nock("http://api.example.com").get("/").reply(200);
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        before: asyncBefore,
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+      });
+
+      return contract.validate((err) => {
+        assert.ifError(err);
+      });
+    });
+
+    it("returns an error when the async before function fails", async () => {
+      async function asyncBefore() {
+        throw new Error('Before failed!')
+      }
+
+      nock("http://api.example.com").get("/").reply(200);
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        before: asyncBefore,
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+      });
+
+      return contract.validate((err) => {
+        assert.ok(err);
+        assert.equal(err.message, "Before failed!");
+      });
+    });
+
     it("runs the after function after validating the contact", async () => {
       const after = sinon.stub().yields();
 
@@ -308,6 +357,57 @@ describe("Contract", () => {
         assert.equal(err.message, "Cleanup error");
       });
     });
+
+
+    it("runs the async after function after validating the contact", async () => {
+      async function asyncAfter() {
+        // noop
+      }
+
+      nock("http://api.example.com").get("/").reply(200);
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+        after: asyncAfter,
+      });
+
+      return contract.validate((err) => {
+        assert.ifError(err);
+      });
+    });
+
+    it("returns an error when the async after function fails", async () => {
+      async function asyncAfter() {
+        throw new Error("After failed!");
+      }
+
+      nock("http://api.example.com").get("/").reply(200);
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+        after: asyncAfter,
+      });
+
+      return contract.validate((err) => {
+        assert.ok(err);
+        assert.equal(err.message, "After failed!");
+      });
+    });
+
 
     it("applies any custom Joi options", async () => {
       nock("http://api.example.com").get("/").reply(200, {

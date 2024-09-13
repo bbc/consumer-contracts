@@ -245,7 +245,9 @@ module.exports = new Contract({
 
 ### `before` _optional_
 
-If your contract requires some setup (e.g. populating an API with data) you can use the `before` property. It takes a function that will be run before the contract executes. The setup function receives a callback argument that you should call once your setup is complete.
+If your contract requires some setup (e.g. populating an API with data) you can use the `before` property. It takes a function that will be run before the contract executes.
+
+You can either pass a function that receives a callback argument which will be called when setup is complete:
 
 ```js
 module.exports = new Contract({
@@ -264,9 +266,29 @@ module.exports = new Contract({
 });
 ```
 
+Or pass an asynchronous function that will be awaited on:
+
+```js
+module.exports = new Contract({
+  name: "Contract name",
+  consumer: "Consumer name",
+  before: async function () {
+    // setup
+  },
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  },
+});
+```
+
 ### `after` _optional_
 
-If your contract requires some cleanup you can use the `after` property. It takes a function that will be run after the contract executes. The after function receives a callback argument that you should call once your cleanup is complete.
+If your contract requires some cleanup you can use the `after` property. It takes a function that will be run after the contract executes.
+
+You can either pass a function that receives a callback argument which will be called when cleanup is complete:
 
 ```js
 module.exports = new Contract({
@@ -281,6 +303,24 @@ module.exports = new Contract({
   after: function (done) {
     // cleanup
     done();
+  },
+});
+```
+
+Or pass an asynchronous function that will be awaited on:
+
+```js
+module.exports = new Contract({
+  name: "Contract name",
+  consumer: "Consumer name",
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  },
+  after: async function () {
+    // cleanup
   },
 });
 ```
