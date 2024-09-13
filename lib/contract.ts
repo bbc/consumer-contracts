@@ -27,6 +27,13 @@ function validateOptions(options: ContractOptions) {
   });
 }
 
+export function assertIsAsyncBeforeAfter(fn: BeforeAfterFn): asserts fn is () => Promise<void> {
+  if (fn.length !== 0) {
+    throw new Error('Asynchronous before functions do not accept callbacks!')
+  }
+}
+
+
 export type TransformedResponse = {
   url: string;
   status: number;
@@ -90,23 +97,15 @@ export type ContractCustomAsyncClient = {
   delete: (url: string, request: ContractRequest) => Promise<ContractResponse>,
 }
 
+type BeforeAfterFn = (() => Promise<unknown>) | ((callback: (val: any) => void) => void);
+
 export type ContractOptions = {
   request: ContractRequest;
   response: Joi.PartialSchemaMap<any> | undefined;
   name: string;
   consumer: string;
-  /**
-   * Supports old style setup functions such as those used in conjunction with the now retired \@ibl/request library.
-   * @deprecated use asyncBefore instead
-   */
-  before?: (callback: (val: any) => void) => void;
-  /**
-   * Supports old tear-down setup functions such as those used in conjunction with the now retired \@ibl/request library.
-   * @deprecated use asyncAfter instead
-   */
-  after?: (callback: (val: any) => void) => void;
-  asyncBefore?: () => Promise<unknown>
-  asyncAfter?: () => Promise<unknown>
+  before?: BeforeAfterFn;
+  after?: BeforeAfterFn;
   retries?: number;
   retryDelay?: number;
   joiOptions?: ValidationOptions;
@@ -129,8 +128,6 @@ export class Contract {
   consumer: string;
   before?: ContractOptions['before'];
   after?: ContractOptions['after'];
-  asyncBefore?: ContractOptions['asyncBefore'];
-  asyncAfter?: ContractOptions['asyncAfter'];
   retries: number;
   retryDelay: number;
   _request: ContractRequest;
@@ -146,8 +143,6 @@ export class Contract {
     this.consumer = options.consumer;
     this.before = options.before;
     this.after = options.after;
-    this.asyncBefore = options.asyncBefore;
-    this.asyncAfter = options.asyncAfter;
     this.retries = options.retries || 0;
     this.retryDelay = options.retryDelay || 0;
 
@@ -212,20 +207,24 @@ export class Contract {
     const schema = Joi.object().keys(this._response);
     let schemaValidationResult;
     if (this.before) {
-      let beforeHasErrored = false;
-      this.before((val) => {
-        callback(val, undefined);
-        if (val instanceof Error) beforeHasErrored = true;
-      });
-      if (beforeHasErrored) return;
-    }
+      if (this.before.constructor.name === 'AsyncFunction') {
+        // Promise-based before
+        assertIsAsyncBeforeAfter(this.before);
 
-    if (this.asyncBefore) {
-      try {
-        await this.asyncBefore();
-      } catch (error) {
-        callback(error, undefined);
-        return;
+        try {
+          await this.before();
+        } catch (error) {
+          callback(error, undefined);
+          return;
+        }
+      } else {
+        // Old-style callback before
+        let beforeHasErrored = false;
+        this.before((val) => {
+          callback(val, undefined);
+          if (val instanceof Error) beforeHasErrored = true;
+        });
+        if (beforeHasErrored) return;
       }
     }
 
@@ -270,20 +269,24 @@ export class Contract {
     }
 
     if (this.after) {
-      let afterHasErrored = false;
-      this.after((val) => {
-        callback(val, undefined);
-        if (val instanceof Error) afterHasErrored = true;
-      });
-      if (afterHasErrored) return;
-    }
-
-    if (this.asyncAfter) {
-      try {
-        await this.asyncAfter();
-      } catch (error) {
-        callback(error, undefined);
-        return;
+      if (this.after.constructor.name === 'AsyncFunction') {
+        // Promise-based after
+        assertIsAsyncBeforeAfter(this.after);
+        
+        try {
+          await this.after();
+        } catch (error) {
+          callback(error, undefined);
+          return;
+        }
+      } else {
+        // Old-style callback after
+        let afterHasErrored = false;
+        this.after((val) => {
+          callback(val, undefined);
+          if (val instanceof Error) afterHasErrored = true;
+        });
+        if (afterHasErrored) return;
       }
     }
 

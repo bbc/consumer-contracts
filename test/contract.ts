@@ -263,15 +263,17 @@ describe("Contract", () => {
       });
     });
 
-    it("runs the asyncBefore validating the contact", async () => {
-      const asyncBefore = sinon.stub().resolves();
+    it("runs the async before validating the contact", async () => {
+      async function asyncBefore() {
+        // noop
+      }
 
       nock("http://api.example.com").get("/").reply(200);
 
       const contract = new Contract({
         name: "Name",
         consumer: "Consumer",
-        asyncBefore,
+        before: asyncBefore,
         request: {
           url: "http://api.example.com/",
         },
@@ -282,19 +284,20 @@ describe("Contract", () => {
 
       return contract.validate((err) => {
         assert.ifError(err);
-        sinon.assert.called(asyncBefore);
       });
     });
 
-    it("returns an error when the asyncBefore function fails", async () => {
-      const asyncBefore = sinon.stub().rejects(new Error("Setup error"));
+    it("returns an error when the async before function fails", async () => {
+      async function asyncBefore() {
+        throw new Error('Before failed!')
+      }
 
       nock("http://api.example.com").get("/").reply(200);
 
       const contract = new Contract({
         name: "Name",
         consumer: "Consumer",
-        asyncBefore,
+        before: asyncBefore,
         request: {
           url: "http://api.example.com/",
         },
@@ -305,7 +308,7 @@ describe("Contract", () => {
 
       return contract.validate((err) => {
         assert.ok(err);
-        assert.equal(err.message, "Setup error");
+        assert.equal(err.message, "Before failed!");
       });
     });
 
@@ -356,8 +359,10 @@ describe("Contract", () => {
     });
 
 
-    it("runs the asyncAfter function after validating the contact", async () => {
-      const asyncAfter = sinon.stub().resolves();
+    it("runs the async after function after validating the contact", async () => {
+      async function asyncAfter() {
+        // noop
+      }
 
       nock("http://api.example.com").get("/").reply(200);
 
@@ -370,17 +375,18 @@ describe("Contract", () => {
         response: {
           status: 200,
         },
-        asyncAfter,
+        after: asyncAfter,
       });
 
       return contract.validate((err) => {
         assert.ifError(err);
-        sinon.assert.called(asyncAfter);
       });
     });
 
-    it("returns an error when the asyncAfter function fails", async () => {
-      const asyncAfter = sinon.stub().rejects(new Error("Cleanup error"));
+    it("returns an error when the async after function fails", async () => {
+      async function asyncAfter() {
+        throw new Error("After failed!");
+      }
 
       nock("http://api.example.com").get("/").reply(200);
 
@@ -393,12 +399,12 @@ describe("Contract", () => {
         response: {
           status: 200,
         },
-        asyncAfter,
+        after: asyncAfter,
       });
 
       return contract.validate((err) => {
         assert.ok(err);
-        assert.equal(err.message, "Cleanup error");
+        assert.equal(err.message, "After failed!");
       });
     });
 
