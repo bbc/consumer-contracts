@@ -272,7 +272,7 @@ export class Contract {
       if (this.after.constructor.name === 'AsyncFunction') {
         // Promise-based after
         assertIsAsyncBeforeAfter(this.after);
-        
+
         try {
           await this.after();
         } catch (error) {
