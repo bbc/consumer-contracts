@@ -562,6 +562,162 @@ describe("Contract", () => {
 
         return contractValidation;
       });
+
+      it('supports a custom retry function', (done) => {
+        const server = nock('http://api.example.com')
+          .get('/test')
+          .reply(202)
+          .get('/test')
+          .reply(200, { success: true });
+
+        const contract = new Contract({
+          name: 'Test Contract',
+          consumer: 'Test Consumer',
+          request: {
+            url: 'http://api.example.com/test',
+            method: 'GET'
+          },
+          response: {
+            status: 200,
+            body: Joi.object().keys({
+              success: Joi.boolean().valid(true)
+            })
+          },
+          retries: {
+            maxRetries: 1,
+            handler: (error) => error.statusCode === 202 ? 100 : false
+          }
+        });
+
+        contract.validate((err) => {
+          try {
+            assert.ifError(err);
+            assert.ok(server.isDone());
+            done();
+          } catch (error) {
+            done(error);
+          }
+        });
+      });
+
+      it('passes retry count to retry function', (done) => {
+        const server = nock('http://api.example.com')
+          .get('/test')
+          .times(3)
+          .reply(202)
+          .get('/test')
+          .reply(200, { success: true });
+
+        const retryCounts: number[] = [];
+
+        const contract = new Contract({
+          name: 'Test Contract',
+          consumer: 'Test Consumer',
+          request: {
+            url: 'http://api.example.com/test',
+            method: 'GET'
+          },
+          response: {
+            status: 200,
+            body: Joi.object().keys({
+              success: Joi.boolean().valid(true)
+            })
+          },
+          retries: {
+            maxRetries: 3,
+            handler: (error, request, retryCount) => {
+              retryCounts.push(retryCount);
+              return error.statusCode === 202 ? 10 : false;
+            }
+          }
+        });
+
+        contract.validate((err) => {
+          try {
+            assert.ifError(err);
+            assert.deepEqual(retryCounts, [0, 1, 2]);
+            assert.ok(server.isDone());
+            done();
+          } catch (error) {
+            done(error);
+          }
+        });
+      });
+
+      it('stops retrying when maxRetries is reached', (done) => {
+        let retryCount = 0;
+        const server = nock('http://api.example.com')
+          .get('/test')
+          .times(3)
+          .reply(500);
+
+        const contract = new Contract({
+          name: 'Test Contract',
+          consumer: 'Test Consumer',
+          request: {
+            url: 'http://api.example.com/test',
+            method: 'GET'
+          },
+          response: {
+            status: 200
+          },
+          retries: {
+            maxRetries: 2,
+            handler: (error, request, retryAttempt) => {
+              retryCount++;
+              return true;
+            }
+          }
+        });
+
+        contract.validate((err) => {
+          try {
+            assert.ok(err, 'Should fail after max retries');
+            assert.equal(retryCount, 2, 'Should have attempted exactly maxRetries times');
+            assert.ok(server.isDone(), 'Should have made initial request plus maxRetries attempts');
+            done();
+          } catch (error) {
+            done(error);
+          }
+        });
+      });
+    });
+
+    it('stops retrying when function returns false', (done) => {
+      let retryFunctionCalls = 0;
+      const server = nock('http://api.example.com')
+        .get('/test')
+        .reply(500);
+
+      const contract = new Contract({
+        name: 'Test Contract',
+        consumer: 'Test Consumer',
+        request: {
+          url: 'http://api.example.com/test',
+          method: 'GET'
+        },
+        response: {
+          status: 200
+        },
+        retries: {
+          maxRetries: 1,
+          handler: (error, request, retryCount) => {
+            retryFunctionCalls++;
+            return false;
+          }
+        }
+      });
+
+      contract.validate((err) => {
+        try {
+          assert.ok(err);
+          assert.equal(retryFunctionCalls, 1, 'Retry function should only be called once');
+          assert.ok(server.isDone(), 'Server should have received exactly one request');
+          done();
+        } catch (error) {
+          done(error);
+        }
+      });
     });
   });
 });

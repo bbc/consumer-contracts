@@ -347,40 +347,58 @@ module.exports = new Contract({
 
 ### `retries` _optional_
 
-Retries the contract `retries` times if it fails on the first attempt.
+Retries the contract if it fails. Can be specified in two ways:
 
+1. As a number - will retry that many times with optional fixed delay:
 ```js
-module.exports = new Contract({
-  name: "Contract name",
-  consumer: "Consumer name",
-  request: {
-    // ...
-  },
-  response: {
-    // ...
-  },
+{
   retries: 2,
-});
+  retryDelay: 3000 // optional, milliseconds between retries
+}
 ```
+
+2. As an object with custom retry logic:
+```js
+{
+  retries: {
+    maxRetries: 3,
+    handler: (error, request, retryCount) => {
+      // Return false to stop retrying
+      // Return true to retry immediately
+      // Return a number to retry after that many milliseconds
+      
+      // Example: Retry on 202 status with exponential backoff
+      if (error.statusCode === 202 && retryCount < 3) {
+        return Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+      }
+      return false;
+    }
+  }
+}
+```
+
+The retry handler receives:
+- `error` - The error object containing:
+  - `message` - Error message
+  - `detail` - Detailed error information
+  - `statusCode` - HTTP status code
+  - `response` - Full response object
+  - `request` - Original request object
+- `request` - The original request options
+- `retryCount` - Number of retries attempted so far (starting at 0)
+
+It should return:
+- `false` to stop retrying
+- `true` to retry immediately
+- A number to retry after that many milliseconds
+
+The max retries is 0 by default.
 
 ### `retryDelay` _optional_
 
-Used with `retries` to wait `retryDelay` milliseconds between each retry.
+Used with numeric `retries` to wait `retryDelay` milliseconds between each retry. Ignored when using a retry handler.
 
-```js
-module.exports = new Contract({
-  name: "Contract name",
-  consumer: "Consumer name",
-  request: {
-    // ...
-  },
-  response: {
-    // ...
-  },
-  retries: 2,
-  retryDelay: 3000,
-});
-```
+This defaults to 0.
 
 ### Specifying multiple contracts
 
