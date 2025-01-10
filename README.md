@@ -350,16 +350,34 @@ module.exports = new Contract({
 Retries the contract if it fails. Can be specified in two ways:
 
 1. As a number - will retry that many times with optional fixed delay:
+
 ```js
-{
+module.exports = new Contract({
+  name: "Contract name",
+  consumer: "Consumer name",
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  },
   retries: 2,
   retryDelay: 3000 // optional, milliseconds between retries
-}
+});
 ```
 
 2. As an object with custom retry logic:
+
 ```js
-{
+module.exports = new Contract({
+  name: "Contract name",
+  consumer: "Consumer name",
+  request: {
+    // ...
+  },
+  response: {
+    // ...
+  },
   retries: {
     maxRetries: 3,
     handler: (error, request, retryCount) => {
@@ -374,7 +392,7 @@ Retries the contract if it fails. Can be specified in two ways:
       return false;
     }
   }
-}
+});
 ```
 
 The retry handler receives:
