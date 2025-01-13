@@ -212,78 +212,14 @@ export class Contract {
   }
 
   /**
-   * Execute the contract with retries.
-   * @param execute - The function to execute.
-   * @returns The result of the execution.
-   */
-  private async executeWithRetries(execute: () => Promise<any>): Promise<any> {
-    let retryCount = 0;
-
-    const maxRetries = typeof this.retries === 'number' 
-      ? this.retries 
-      : (this.retries?.maxRetries ?? 0);
-    
-    const tryExecute = async () => {
-      try {
-        return await execute();
-      } catch (error: any) {
-        if (!this.retries || retryCount >= maxRetries) {
-          throw error;
-        }
-
-        const statusCode = error.statusCode || 
-          (error.response?.statusCode) || 
-          (error.response?.status) ||
-          (typeof error === 'object' && 'status' in error ? error.status : undefined);
-
-        const validationError = {
-          message: error.message,
-          detail: error.detail,
-          statusCode,
-          response: error.response,
-          request: error.request
-        };
-
-        if (typeof this.retries === 'object') {
-          const shouldRetry = this.retries.handler(
-            validationError,
-            this._request,
-            retryCount
-          );
-
-          if (shouldRetry) {
-            if (typeof shouldRetry === 'number' && shouldRetry > 0) {
-              await timeout(shouldRetry);
-            }
-
-            retryCount++;
-
-            return tryExecute();
-          }
-        } else {
-          if (this.retryDelay > 0) {
-            await timeout(this.retryDelay);
-          }
-
-          retryCount++;
-
-          return tryExecute();
-        }
-        
-        throw error;
-      }
-    };
-
-    return tryExecute();
-  }
-
-  /**
    * Validate your contract by fetching from the supplied endpoint and options and validating using Joi schemas.
    * @param {*} callback a callback that contains errors if there were any. Expected to be called with no arguments if the validation succeeded.
    * @returns void
    */
-  async validate(callback: (err: any, result?: ValidationResult) => void): Promise<void> {
+  async validate(callback: (err: any, result: ValidationResult | undefined) => void) {
     const schema = Joi.object().keys(this._response);
+
+    let schemaValidationResult;
 
     if (this.before) {
       if (this.before.constructor.name === 'AsyncFunction') {
@@ -308,10 +244,41 @@ export class Contract {
     }
 
     try {
-      const result = await this.executeWithRetries(async () => {
+      const maxRetries = typeof this.retries === 'number' 
+        ? this.retries 
+        : (this.retries?.maxRetries ?? 0);
+      let retryCount = maxRetries;
+
+      while (retryCount >= 0) {
+        if (retryCount !== maxRetries) {
+          if (typeof this.retries === 'object') {
+            const validationError = {};
+
+            const shouldRetry = this.retries.handler(
+              validationError,
+              this._request,
+              retryCount
+            );
+
+            if (shouldRetry) {
+              if (typeof shouldRetry === 'number' && shouldRetry > 0) {
+                await timeout(shouldRetry);
+              }
+
+              retryCount++;
+            }
+          } else {
+            if (this.retryDelay > 0) {
+              await timeout(this.retryDelay);
+            }
+
+            retryCount++;
+          }
+        }
+
         const clientResponse = await this._client(this._request);
-        
-        const resWithEvaluatedBody = {
+
+        const resWithEvaluatedBody: TransformedResponse = {
           url: clientResponse.url,
           status: clientResponse.statusCode || clientResponse.status,
           statusCode: clientResponse.statusCode || clientResponse.status,
@@ -322,23 +289,26 @@ export class Contract {
 
         debug(`${resWithEvaluatedBody.url} ${resWithEvaluatedBody.status}`);
 
-        const schemaValidationResult = schema.validate(resWithEvaluatedBody, this.joiOptions);
-        
+        schemaValidationResult = schema.validate(resWithEvaluatedBody, this.joiOptions);
+
         if (schemaValidationResult.error) {
-          const detail = schemaValidationResult.error.details[0];
-          const path = detail.path;
-          const error = createError(detail, path, resWithEvaluatedBody);
-          error.response = resWithEvaluatedBody;
-          error.request = this._request;
-          throw error;
+          if (retryCount > 0) {
+            retryCount -= 1;
+            continue;
+          } else {
+            const detail = schemaValidationResult.error.details[0];
+            const path = detail.path;
+            callback(createError(detail, path, resWithEvaluatedBody), undefined);
+            return;
+          }
+        } else {
+          retryCount = -1;
+          continue;
         }
-
-        return schemaValidationResult;
-      });
-
-      callback(undefined, result);
+      }
     } catch (error) {
-      callback(error);
+      callback(error, undefined);
+      return;
     }
 
     if (this.after) {
@@ -362,5 +332,7 @@ export class Contract {
         if (afterHasErrored) return;
       }
     }
+
+    callback(undefined, schemaValidationResult);
   }
 }
