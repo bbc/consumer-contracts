@@ -253,7 +253,7 @@ export class Contract {
 
           if (shouldRetry) {
             if (typeof shouldRetry === 'number' && shouldRetry > 0) {
-              await new Promise(resolve => setTimeout(resolve, shouldRetry));
+              await timeout(shouldRetry);
             }
 
             retryCount++;
@@ -262,7 +262,7 @@ export class Contract {
           }
         } else {
           if (this.retryDelay > 0) {
-            await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+            await timeout(this.retryDelay);
           }
 
           retryCount++;
@@ -336,18 +336,31 @@ export class Contract {
         return schemaValidationResult;
       });
 
-      if (this.after) {
-        if (this.after.constructor.name === 'AsyncFunction') {
-          await this.after();
-        } else {
-          this.after(callback);
-          return;
-        }
-      }
-
       callback(undefined, result);
     } catch (error) {
       callback(error);
+    }
+
+    if (this.after) {
+      if (this.after.constructor.name === 'AsyncFunction') {
+        // Promise-based after
+        assertIsAsyncBeforeAfter(this.after);
+
+        try {
+          await this.after();
+        } catch (error) {
+          callback(error, undefined);
+          return;
+        }
+      } else {
+        // Old-style callback after
+        let afterHasErrored = false;
+        this.after((val) => {
+          callback(val, undefined);
+          if (val instanceof Error) afterHasErrored = true;
+        });
+        if (afterHasErrored) return;
+      }
     }
   }
 }
