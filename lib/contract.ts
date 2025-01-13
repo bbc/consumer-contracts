@@ -315,21 +315,24 @@ export class Contract {
     }
 
     if (this.after) {
-      try {
-        if (this.after.constructor.name === 'AsyncFunction') {
-          assertIsAsyncBeforeAfter(this.after);
+      if (this.after.constructor.name === 'AsyncFunction') {
+        // Promise-based after
+        assertIsAsyncBeforeAfter(this.after);
+
+        try {
           await this.after();
-        } else {
-          await new Promise<void>((resolve, reject) => {
-            this.after!((val) => {
-              if (val) reject(val);
-              else resolve();
-            });
-          });
+        } catch (error) {
+          callback(error, undefined);
+          return;
         }
-      } catch (afterError) {
-        callback(afterError, undefined);
-        return;
+      } else {
+        // Old-style callback after
+        let afterHasErrored = false;
+        this.after((val) => {
+          callback(val, undefined);
+          if (val instanceof Error) afterHasErrored = true;
+        });
+        if (afterHasErrored) return;
       }
     }
 
