@@ -312,9 +312,11 @@ export class Contract {
       }
     } catch (error) {
       validationError = error;
+      callback(error, undefined);
+      return;
     }
 
-    if (this.after) {
+    if (!validationError && this.after) {
       if (this.after.constructor.name === 'AsyncFunction') {
         // Promise-based after
         assertIsAsyncBeforeAfter(this.after);
