@@ -408,6 +408,29 @@ describe("Contract", () => {
       });
     });
 
+    it("does not call after function when there are validation errors", async () => {
+      const after = sinon.stub().yields();
+
+      nock("http://api.example.com").get("/").reply(500);
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+        after,
+      });
+
+      return contract.validate((err) => {
+        assert.ok(err);
+        assert.equal(err.message, 'Contract failed: "status" must be [200]');
+        sinon.assert.notCalled(after);
+      });
+    });
 
     it("applies any custom Joi options", async () => {
       nock("http://api.example.com").get("/").reply(200, {
