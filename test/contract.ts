@@ -408,7 +408,7 @@ describe("Contract", () => {
       });
     });
 
-    it("does not call after function when there are validation errors", async () => {
+    it("does not call the after function when there are validation errors", async () => {
       const after = sinon.stub().yields();
 
       nock("http://api.example.com").get("/").reply(500);
@@ -428,6 +428,31 @@ describe("Contract", () => {
       return contract.validate((err) => {
         assert.ok(err);
         assert.equal(err.message, 'Contract failed: "status" must be [200]');
+        sinon.assert.notCalled(after);
+      });
+    });
+
+    it("does not call the after function when the request throws an error", async () => {
+      const after = sinon.stub().yields();
+      const mockClient = sinon.stub().rejects(new Error("Network error"));
+
+      const contract = new Contract({
+        name: "Name",
+        consumer: "Consumer",
+        request: {
+          url: "http://api.example.com/",
+        },
+        response: {
+          status: 200,
+        },
+        after,
+      });
+
+      contract._client = mockClient;
+
+      return contract.validate((err) => {
+        assert.ok(err);
+        assert.equal(err.message, "Network error");
         sinon.assert.notCalled(after);
       });
     });
