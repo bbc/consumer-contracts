@@ -106,7 +106,20 @@ export type ContractOptions = {
   consumer: string;
   before?: BeforeAfterFn;
   after?: BeforeAfterFn;
-  retries?: number;
+  retries?: number | {
+    maxRetries: number;
+    handler: (
+      error: {
+        message: string;
+        detail: string;
+        statusCode: number;
+        response?: any;
+        request?: any;
+      },
+      request: ContractRequest,
+      retryCount: number
+    ) => boolean | number;
+  };
   retryDelay?: number;
   joiOptions?: ValidationOptions;
   /**
@@ -128,7 +141,7 @@ export class Contract {
   consumer: string;
   before?: ContractOptions['before'];
   after?: ContractOptions['after'];
-  retries: number;
+  retries: ContractOptions['retries'];
   retryDelay: number;
   _request: ContractRequest;
   _response: Joi.PartialSchemaMap<any> | undefined;
@@ -205,7 +218,11 @@ export class Contract {
    */
   async validate(callback: (err: any, result: ValidationResult | undefined) => void) {
     const schema = Joi.object().keys(this._response);
+
     let schemaValidationResult;
+    let validationError: any = undefined;
+    let validationResult: ValidationResult | undefined = undefined;
+
     if (this.before) {
       if (this.before.constructor.name === 'AsyncFunction') {
         // Promise-based before
@@ -229,14 +246,16 @@ export class Contract {
     }
 
     try {
-      let retries = this.retries;
+      const maxRetries = typeof this.retries === 'number' 
+        ? this.retries 
+        : (this.retries?.maxRetries ?? 0);
+      let retryCount = 0;
+      let lastResponse: TransformedResponse | undefined;
 
-      while (retries >= 0) {
-        if (retries !== this.retries && !!this.retryDelay) await timeout(this.retryDelay);
-
+      while (retryCount <= maxRetries) {
         const clientResponse = await this._client(this._request);
 
-        const resWithEvaluatedBody: TransformedResponse = {
+        lastResponse = {
           url: clientResponse.url,
           status: clientResponse.statusCode || clientResponse.status,
           statusCode: clientResponse.statusCode || clientResponse.status,
@@ -245,30 +264,59 @@ export class Contract {
           body: clientResponse.body,
         };
 
-        debug(`${resWithEvaluatedBody.url} ${resWithEvaluatedBody.status}`);
+        debug(`${lastResponse.url} ${lastResponse.status}`);
 
-        schemaValidationResult = schema.validate(resWithEvaluatedBody, this.joiOptions);
-        if (schemaValidationResult.error) {
-          if (retries > 0) {
-            retries -= 1;
-            continue;
-          } else {
-            const detail = schemaValidationResult.error.details[0];
-            const path = detail.path;
-            callback(createError(detail, path, resWithEvaluatedBody), undefined);
-            return;
+        schemaValidationResult = schema.validate(lastResponse, this.joiOptions);
+
+        if (!schemaValidationResult.error) {
+          validationResult = schemaValidationResult;
+          break;
+        }
+
+        if (retryCount < maxRetries) {
+          if (typeof this.retries === 'object') {
+            const validationError = {
+              message: schemaValidationResult.error.message,
+              detail: schemaValidationResult.error.details[0].message,
+              statusCode: lastResponse.statusCode,
+              response: lastResponse,
+              request: this._request
+            };
+
+            const shouldRetry = this.retries.handler(
+              validationError,
+              this._request,
+              retryCount
+            );
+
+            if (!shouldRetry) {
+              break;
+            }
+
+            if (typeof shouldRetry === 'number' && shouldRetry > 0) {
+              await timeout(shouldRetry);
+            }
+          } else if (this.retryDelay > 0) {
+            await timeout(this.retryDelay);
           }
+          retryCount++;
         } else {
-          retries = -1;
-          continue;
+          break;
         }
       }
+
+      if (schemaValidationResult?.error && lastResponse) {
+        const detail = schemaValidationResult.error.details[0];
+        const path = detail.path;
+        validationError = createError(detail, path, lastResponse);
+      }
     } catch (error) {
+      validationError = error;
       callback(error, undefined);
       return;
     }
 
-    if (this.after) {
+    if (!validationError && this.after) {
       if (this.after.constructor.name === 'AsyncFunction') {
         // Promise-based after
         assertIsAsyncBeforeAfter(this.after);
@@ -290,6 +338,6 @@ export class Contract {
       }
     }
 
-    callback(undefined, schemaValidationResult);
+    callback(validationError, validationResult);
   }
 }
