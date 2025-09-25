@@ -4,9 +4,8 @@
   "description": "Consumer driven contracts for Node.js",
   "main": "dist/index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha && npm run lint",
     "lint": "eslint .",
-    "posttest": "npm run lint",
     "coverage": "istanbul cover _mocha -- -R dot",
     "format": "prettier --log-level warn --write \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
     "format:check": "prettier --check \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
