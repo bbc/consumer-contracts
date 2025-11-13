@@ -4,7 +4,7 @@
   "description": "Consumer driven contracts for Node.js",
   "main": "dist/index.js",
   "scripts": {
-    "test": "mocha && npm run lint",
+    "test": "mocha && pnpm run lint",
     "lint": "eslint .",
     "coverage": "istanbul cover _mocha -- -R dot",
     "format": "prettier --log-level warn --write \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
@@ -15,7 +15,8 @@
     "consumer-contracts": "./dist/lib/cli.js"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "pnpm": ">=10"
   },
   "preferGlobal": true,
   "repository": {
@@ -51,6 +52,7 @@
     "@types/sinon": "^17.0.3",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "audit-ci": "^7.1.0",
     "chai": "^5.1.1",
     "eslint": "^8.57.0",
     "eslint-config-iplayer": "^9.2.0",
