@@ -49,6 +49,8 @@
     "@types/debug": "^4.1.12",
     "@types/lodash": "^4.17.7",
     "@types/mocha": "^10.0.7",
+    "@types/node": "^24.10.1",
+    "@types/node-fetch": "^2.6.13",
     "@types/sinon": "^17.0.3",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
