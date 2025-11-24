@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha && pnpm run lint",
     "lint": "eslint .",
-    "coverage": "istanbul cover _mocha -- -R dot",
+    "coverage": "nyc mocha && nyc report --reporter=html && nyc report --reporter=json-summary",
     "format": "prettier --log-level warn --write \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
     "format:check": "prettier --check \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
     "build": "tsc"
@@ -57,9 +57,9 @@
     "eslint": "^8.57.0",
     "eslint-config-iplayer": "^9.2.0",
     "eslint-plugin-mocha": "^10.4.3",
-    "istanbul": "^0.4.5",
     "mocha": "^10.6.0",
     "nock": "^13.5.4",
+    "nyc": "^17.1.0",
     "prettier": "^3.3.2",
     "sinon": "^18.0.0",
     "tsx": "^4.17.0",
