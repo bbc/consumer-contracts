@@ -4,9 +4,9 @@
   "description": "Consumer driven contracts for Node.js",
   "main": "dist/index.js",
   "scripts": {
-    "test": "mocha && npm run lint",
+    "test": "mocha && pnpm run lint",
     "lint": "eslint .",
-    "coverage": "istanbul cover _mocha -- -R dot",
+    "coverage": "nyc mocha && nyc report --reporter=html && nyc report --reporter=json-summary",
     "format": "prettier --log-level warn --write \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
     "format:check": "prettier --check \"**/*.{js,json,jsx,md,ts,tsx,html}\"",
     "build": "tsc"
@@ -15,7 +15,8 @@
     "consumer-contracts": "./dist/lib/cli.js"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "pnpm": ">=10"
   },
   "preferGlobal": true,
   "repository": {
@@ -48,6 +49,8 @@
     "@types/debug": "^4.1.12",
     "@types/lodash": "^4.17.7",
     "@types/mocha": "^10.0.7",
+    "@types/node": "^24.10.1",
+    "@types/node-fetch": "^2.6.13",
     "@types/sinon": "^17.0.3",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
@@ -55,9 +58,9 @@
     "eslint": "^8.57.0",
     "eslint-config-iplayer": "^9.2.0",
     "eslint-plugin-mocha": "^10.4.3",
-    "istanbul": "^0.4.5",
     "mocha": "^10.6.0",
     "nock": "^13.5.4",
+    "nyc": "^17.1.0",
     "prettier": "^3.3.2",
     "sinon": "^18.0.0",
     "tsx": "^4.17.0",

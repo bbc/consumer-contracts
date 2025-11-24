@@ -21,13 +21,13 @@ This project lets you write executable contracts in JavaScript. It uses [request
 Install the `consumer-contracts` tool globally:
 
 ```
-npm install --global consumer-contracts
+pnpm install --global consumer-contracts
 ```
 
 Install the `consumer-contracts` module locally (this gives you access to the contract definition interface in your contract files):
 
 ```
-npm install --save-dev consumer-contracts
+pnpm install --save-dev consumer-contracts
 ```
 
 Create a `contracts` directory at the root of your project:
