@@ -1,43 +1,36 @@
- # This config was generated using ibl-scripts
+packages:
+  - .
 
-# Dependency Resiliency
-
-## Set min package age to 7 days
-## https://confluence.dev.bbc.co.uk/spaces/SECARC/pages/480985004/Guidance+for+use+of+language+package+managers
-minimumReleaseAge: 10800
-
-## Exclude internal packages
-minimumReleaseAgeExclude:
-- '@bbc/*'
-- '@ibl/*'
-
-## pnpm <10 - don't run scripts from dependencies
-ignoreDepScripts: true
-
-## Most of ibl's estate comprises polyrepos. For these we want catalogMode: manual
-## For monorepos, change the below setting to catalogMode: prefer
 catalogMode: manual
 
-# Package Isolation
+engineStrict: true
 
-## Specific lockfile per package
-sharedWorkspaceLockfile: false
-
-## Exclusively install the package in CWD.
-recursiveInstall: false
-
-## Deps of Deps are isolated
 hoist: false
 
-# Configure pnpm for non-monorepos
-packages:
-  - "."
+ignoreDepScripts: true
 
-# Hoist eslint plugins for compatibility
+minimumReleaseAge: 10800
+
+minimumReleaseAgeExclude:
+  - '@bbc/*'
+  - '@ibl/*'
+
+overrides:
+  brace-expansion@>=1.0.0 <=1.1.11: '>=1.1.12'
+  brace-expansion@>=2.0.0 <=2.0.1: '>=2.0.2'
+  cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
+  esbuild@<=0.24.2: '>=0.25.0'
+  form-data@>=4.0.0 <4.0.4: '>=4.0.4'
+  js-yaml@>=4.0.0 <4.1.1: '>=4.1.1'
+  micromatch@<4.0.8: '>=4.0.8'
+  path-to-regexp@>=4.0.0 <6.3.0: '>=6.3.0'
+
 publicHoistPattern:
-  - "eslint-*"
-  - "@eslint/*"
-  - "@typescript-eslint/*"
-  - "jest"
+  - eslint-*
+  - '@eslint/*'
+  - '@typescript-eslint/*'
+  - jest
 
-engineStrict: true
+recursiveInstall: false
+
+sharedWorkspaceLockfile: false
