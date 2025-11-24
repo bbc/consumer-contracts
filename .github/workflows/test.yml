@@ -30,7 +30,7 @@ jobs:
           cache: 'pnpm'
 
       - name: NPM Audit
-        run: pnpm audit-ci
+        run: pnpm dlx audit-ci@^7.1.0
 
       - name: Install Node Modules
         run: pnpm i --frozen-lockfile
