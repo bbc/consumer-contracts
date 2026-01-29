@@ -55,7 +55,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "chai": "^5.1.1",
-    "eslint": "^8.57.0",
+    "eslint": "^9.26.0",
     "eslint-config-iplayer": "^9.2.0",
     "eslint-plugin-mocha": "^10.4.3",
     "mocha": "^10.6.0",
