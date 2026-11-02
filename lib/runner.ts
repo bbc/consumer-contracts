@@ -31,27 +31,31 @@ async function validateFiles(filepaths: string[]) {
     contracts = await Promise.all(filepaths.map(loadContract));
     contracts = contracts.flat();
   } catch (err: unknown) {
-    (err as Error).message = "Failed to load contract: " + (err as Error).message;
+    (err as Error).message =
+      "Failed to load contract: " + (err as Error).message;
     logger.error((err as Error).stack);
     process.exit(1);
   }
 
   // [{ contract, err }, ...]
   await validateContracts(contracts, (err, results) => {
-    const failures = _(results).filter('err').compact().value();
+    const failures = _(results).filter("err").compact().value();
     const totalCompleted = contracts.length;
     const totalFailed = failures.length;
     const totalPassed = totalCompleted - totalFailed;
-    const exitCode = (failures.length > 0) ? 1 : 0;
+    const exitCode = failures.length > 0 ? 1 : 0;
 
-    results = results.map((r: any, i: number) => ({ ...r[0], contract: contracts[i] }));
+    results = results.map((r: any, i: number) => ({
+      ...r[0],
+      contract: contracts[i],
+    }));
 
     print({
       results,
       failures,
       totalCompleted,
       totalFailed,
-      totalPassed
+      totalPassed,
     });
 
     process.exit(exitCode);

@@ -1,11 +1,11 @@
 import { assert } from "chai";
 import Joi, { ValidationOptions } from "joi";
-import { beforeEach, describe, it } from 'mocha';
+import { beforeEach, describe, it } from "mocha";
 import nock from "nock";
 import sinon from "sinon";
 import { Contract, ContractOptions } from "../lib/contract.js";
 import fetchClient from "../lib/fetch-client.js";
-const { version } = require('./../package.json');
+const { version } = require("./../package.json");
 
 describe("Contract", () => {
   it("throws an error when the name is missing", () => {
@@ -78,7 +78,10 @@ describe("Contract", () => {
       };
       const contract = new Contract(options);
 
-      assert.equal((contract.joiOptions as any).just, (options.joiOptions as any).just);
+      assert.equal(
+        (contract.joiOptions as any).just,
+        (options.joiOptions as any).just,
+      );
     });
   });
 
@@ -106,7 +109,7 @@ describe("Contract", () => {
         },
       });
 
-      return contract.validate(() => { });
+      return contract.validate(() => {});
     });
 
     it("returns an error when the contract is broken", async () => {
@@ -158,7 +161,10 @@ describe("Contract", () => {
 
       return contract.validate((err) => {
         assert.ok(err);
-        assert.equal(err.message, "Request failed for GET http://api.example.com/: ESOCKETTIMEDOUT");
+        assert.equal(
+          err.message,
+          "Request failed for GET http://api.example.com/: ESOCKETTIMEDOUT",
+        );
       });
     });
 
@@ -182,7 +188,7 @@ describe("Contract", () => {
         },
       });
 
-      return contract.validate(() => { });
+      return contract.validate(() => {});
     });
 
     it("supports passing a custom request client", async () => {
@@ -289,7 +295,7 @@ describe("Contract", () => {
 
     it("returns an error when the async before function fails", async () => {
       async function asyncBefore() {
-        throw new Error('Before failed!')
+        throw new Error("Before failed!");
       }
 
       nock("http://api.example.com").get("/").reply(200);
@@ -357,7 +363,6 @@ describe("Contract", () => {
         assert.equal(err.message, "Cleanup error");
       });
     });
-
 
     it("runs the async after function after validating the contact", async () => {
       async function asyncAfter() {
@@ -611,30 +616,30 @@ describe("Contract", () => {
         return contractValidation;
       });
 
-      it('supports a custom retry function', (done) => {
-        const server = nock('http://api.example.com')
-          .get('/test')
+      it("supports a custom retry function", (done) => {
+        const server = nock("http://api.example.com")
+          .get("/test")
           .reply(202)
-          .get('/test')
+          .get("/test")
           .reply(200, { success: true });
 
         const contract = new Contract({
-          name: 'Test Contract',
-          consumer: 'Test Consumer',
+          name: "Test Contract",
+          consumer: "Test Consumer",
           request: {
-            url: 'http://api.example.com/test',
-            method: 'GET'
+            url: "http://api.example.com/test",
+            method: "GET",
           },
           response: {
             status: 200,
             body: Joi.object().keys({
-              success: Joi.boolean().valid(true)
-            })
+              success: Joi.boolean().valid(true),
+            }),
           },
           retries: {
             maxRetries: 1,
-            handler: (error) => error.statusCode === 202 ? 100 : false
-          }
+            handler: (error) => (error.statusCode === 202 ? 100 : false),
+          },
         });
 
         contract.validate((err) => {
@@ -648,36 +653,36 @@ describe("Contract", () => {
         });
       });
 
-      it('passes retry count to retry function', (done) => {
-        const server = nock('http://api.example.com')
-          .get('/test')
+      it("passes retry count to retry function", (done) => {
+        const server = nock("http://api.example.com")
+          .get("/test")
           .times(3)
           .reply(202)
-          .get('/test')
+          .get("/test")
           .reply(200, { success: true });
 
         const retryCounts: number[] = [];
 
         const contract = new Contract({
-          name: 'Test Contract',
-          consumer: 'Test Consumer',
+          name: "Test Contract",
+          consumer: "Test Consumer",
           request: {
-            url: 'http://api.example.com/test',
-            method: 'GET'
+            url: "http://api.example.com/test",
+            method: "GET",
           },
           response: {
             status: 200,
             body: Joi.object().keys({
-              success: Joi.boolean().valid(true)
-            })
+              success: Joi.boolean().valid(true),
+            }),
           },
           retries: {
             maxRetries: 3,
             handler: (error, request, retryCount) => {
               retryCounts.push(retryCount);
               return error.statusCode === 202 ? 10 : false;
-            }
-          }
+            },
+          },
         });
 
         contract.validate((err) => {
@@ -692,37 +697,44 @@ describe("Contract", () => {
         });
       });
 
-      it('stops retrying when maxRetries is reached', (done) => {
+      it("stops retrying when maxRetries is reached", (done) => {
         let retryCount = 0;
-        const server = nock('http://api.example.com')
-          .get('/test')
+        const server = nock("http://api.example.com")
+          .get("/test")
           .times(3)
           .reply(500);
 
         const contract = new Contract({
-          name: 'Test Contract',
-          consumer: 'Test Consumer',
+          name: "Test Contract",
+          consumer: "Test Consumer",
           request: {
-            url: 'http://api.example.com/test',
-            method: 'GET'
+            url: "http://api.example.com/test",
+            method: "GET",
           },
           response: {
-            status: 200
+            status: 200,
           },
           retries: {
             maxRetries: 2,
             handler: (error, request, retryAttempt) => {
               retryCount++;
               return true;
-            }
-          }
+            },
+          },
         });
 
         contract.validate((err) => {
           try {
-            assert.ok(err, 'Should fail after max retries');
-            assert.equal(retryCount, 2, 'Should have attempted exactly maxRetries times');
-            assert.ok(server.isDone(), 'Should have made initial request plus maxRetries attempts');
+            assert.ok(err, "Should fail after max retries");
+            assert.equal(
+              retryCount,
+              2,
+              "Should have attempted exactly maxRetries times",
+            );
+            assert.ok(
+              server.isDone(),
+              "Should have made initial request plus maxRetries attempts",
+            );
             done();
           } catch (error) {
             done(error);
@@ -731,36 +743,41 @@ describe("Contract", () => {
       });
     });
 
-    it('stops retrying when function returns false', (done) => {
+    it("stops retrying when function returns false", (done) => {
       let retryFunctionCalls = 0;
-      const server = nock('http://api.example.com')
-        .get('/test')
-        .reply(500);
+      const server = nock("http://api.example.com").get("/test").reply(500);
 
       const contract = new Contract({
-        name: 'Test Contract',
-        consumer: 'Test Consumer',
+        name: "Test Contract",
+        consumer: "Test Consumer",
         request: {
-          url: 'http://api.example.com/test',
-          method: 'GET'
+          url: "http://api.example.com/test",
+          method: "GET",
         },
         response: {
-          status: 200
+          status: 200,
         },
         retries: {
           maxRetries: 1,
           handler: (error, request, retryCount) => {
             retryFunctionCalls++;
             return false;
-          }
-        }
+          },
+        },
       });
 
       contract.validate((err) => {
         try {
           assert.ok(err);
-          assert.equal(retryFunctionCalls, 1, 'Retry function should only be called once');
-          assert.ok(server.isDone(), 'Server should have received exactly one request');
+          assert.equal(
+            retryFunctionCalls,
+            1,
+            "Retry function should only be called once",
+          );
+          assert.ok(
+            server.isDone(),
+            "Server should have received exactly one request",
+          );
           done();
         } catch (error) {
           done(error);

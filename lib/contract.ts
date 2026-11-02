@@ -3,14 +3,14 @@ import createDebug from "debug";
 import Joi, { ValidationErrorItem, ValidationOptions } from "joi";
 import _ from "lodash";
 import { ValidationResult } from "./formatter";
-const { version } = require('./../package.json');
+const { version } = require("./../package.json");
 
 const debug = createDebug("consumer-contracts");
 
 const requiredOptions = ["name", "consumer", "request", "response"];
 
 function timeout(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 const joiOptions = {
@@ -27,12 +27,13 @@ function validateOptions(options: ContractOptions) {
   });
 }
 
-export function assertIsAsyncBeforeAfter(fn: BeforeAfterFn): asserts fn is () => Promise<void> {
+export function assertIsAsyncBeforeAfter(
+  fn: BeforeAfterFn,
+): asserts fn is () => Promise<void> {
   if (fn.length !== 0) {
-    throw new Error('Asynchronous before functions do not accept callbacks!')
+    throw new Error("Asynchronous before functions do not accept callbacks!");
   }
 }
-
 
 export type TransformedResponse = {
   url: string;
@@ -43,7 +44,11 @@ export type TransformedResponse = {
   body: any;
 };
 
-function createError(detail: ValidationErrorItem, path: (string | number)[], res: TransformedResponse) {
+function createError(
+  detail: ValidationErrorItem,
+  path: (string | number)[],
+  res: TransformedResponse,
+) {
   const err = new Error(`Contract failed: ${detail.message}`);
   (err as any).detail = `at res.${path} got [${_.get(res, path)}]`;
 
@@ -60,7 +65,7 @@ export type ContractRequest = {
   json?: boolean;
   url: string;
   body?: any;
-}
+};
 
 export type ContractResponse = {
   url: string;
@@ -69,35 +74,68 @@ export type ContractResponse = {
   statusText: string;
   headers: ContractRequestHeaders;
   body?: any;
-}
+};
 
 /**
  * Use with old style clients like \@ibl/request.
  * @deprecated See ContractCustomAsyncClient.
  */
 export type ContractCustomClient = {
-  defaults: (cr: ContractRequest) => ({
-    get: (url: string, request: ContractRequest, callback: (err: any, resp: ContractResponse) => void) => void,
-    post: (url: string, request: ContractRequest, callback: (err: any, resp: ContractResponse) => void) => void,
-    patch: (url: string, request: ContractRequest, callback: (err: any, resp: ContractResponse) => void) => void,
-    put: (url: string, request: ContractRequest, callback: (err: any, resp: ContractResponse) => void) => void,
-    delete: (url: string, request: ContractRequest, callback: (err: any, resp: ContractResponse) => void) => void,
-  });
-}
+  defaults: (cr: ContractRequest) => {
+    get: (
+      url: string,
+      request: ContractRequest,
+      callback: (err: any, resp: ContractResponse) => void,
+    ) => void;
+    post: (
+      url: string,
+      request: ContractRequest,
+      callback: (err: any, resp: ContractResponse) => void,
+    ) => void;
+    patch: (
+      url: string,
+      request: ContractRequest,
+      callback: (err: any, resp: ContractResponse) => void,
+    ) => void;
+    put: (
+      url: string,
+      request: ContractRequest,
+      callback: (err: any, resp: ContractResponse) => void,
+    ) => void;
+    delete: (
+      url: string,
+      request: ContractRequest,
+      callback: (err: any, resp: ContractResponse) => void,
+    ) => void;
+  };
+};
 
 /**
  * This type matches @ibl/rest-client and http-transport. To make use of a custom asyncClient you will have to map your asyncClient to a format similar to the below.
  * See fetch-client.ts for an example.
  */
 export type ContractCustomAsyncClient = {
-  get: (url: string, request: ContractRequest) => Promise<ContractResponse>,
-  post: (url: string, body: any, request: ContractRequest) => Promise<ContractResponse>,
-  patch: (url: string, body: any, request: ContractRequest) => Promise<ContractResponse>,
-  put: (url: string, body: any, request: ContractRequest) => Promise<ContractResponse>,
-  delete: (url: string, request: ContractRequest) => Promise<ContractResponse>,
-}
+  get: (url: string, request: ContractRequest) => Promise<ContractResponse>;
+  post: (
+    url: string,
+    body: any,
+    request: ContractRequest,
+  ) => Promise<ContractResponse>;
+  patch: (
+    url: string,
+    body: any,
+    request: ContractRequest,
+  ) => Promise<ContractResponse>;
+  put: (
+    url: string,
+    body: any,
+    request: ContractRequest,
+  ) => Promise<ContractResponse>;
+  delete: (url: string, request: ContractRequest) => Promise<ContractResponse>;
+};
 
-type BeforeAfterFn = (() => Promise<unknown>) | ((callback: (val: any) => void) => void);
+type BeforeAfterFn =
+  (() => Promise<unknown>) | ((callback: (val: any) => void) => void);
 
 export type ContractOptions = {
   request: ContractRequest;
@@ -106,20 +144,22 @@ export type ContractOptions = {
   consumer: string;
   before?: BeforeAfterFn;
   after?: BeforeAfterFn;
-  retries?: number | {
-    maxRetries: number;
-    handler: (
-      error: {
-        message: string;
-        detail: string;
-        statusCode: number;
-        response?: any;
-        request?: any;
-      },
-      request: ContractRequest,
-      retryCount: number
-    ) => boolean | number;
-  };
+  retries?:
+    | number
+    | {
+        maxRetries: number;
+        handler: (
+          error: {
+            message: string;
+            detail: string;
+            statusCode: number;
+            response?: any;
+            request?: any;
+          },
+          request: ContractRequest,
+          retryCount: number,
+        ) => boolean | number;
+      };
   retryDelay?: number;
   joiOptions?: ValidationOptions;
   /**
@@ -131,7 +171,7 @@ export type ContractOptions = {
    * Supports modern async clients such as \@ibl/rest-client or \@bbc/http-transport.
    */
   asyncClient?: ContractCustomAsyncClient;
-}
+};
 
 /**
  * Create a contract with a third party API. Allows for client, request and validation configuration.
@@ -139,9 +179,9 @@ export type ContractOptions = {
 export class Contract {
   name: string;
   consumer: string;
-  before?: ContractOptions['before'];
-  after?: ContractOptions['after'];
-  retries: ContractOptions['retries'];
+  before?: ContractOptions["before"];
+  after?: ContractOptions["after"];
+  retries: ContractOptions["retries"];
   retryDelay: number;
   _request: ContractRequest;
   _response: Joi.PartialSchemaMap<any> | undefined;
@@ -166,46 +206,63 @@ export class Contract {
         "user-agent": "consumer-contracts/" + version,
       },
     };
-    this._requestOptions = _.merge({}, this._defaultRequestOptions, this._request);
+    this._requestOptions = _.merge(
+      {},
+      this._defaultRequestOptions,
+      this._request,
+    );
     this._response = options.response;
 
     if (options.client) {
       const defaultedClient = options.client.defaults(this._requestOptions);
       this._client = async function (request: ContractRequest) {
         return new Promise<ContractResponse>((resolve, reject) => {
-          return (<any>defaultedClient)[(request.method || "get").toLowerCase()](
-            request.url,
-            request,
-            (err: any, resp: ContractResponse) => {
-              if (err) reject(new Error(`Request failed: ${err.message}`));
-              resolve(resp);
-            }
-          );
+          return (<any>defaultedClient)[
+            (request.method || "get").toLowerCase()
+          ](request.url, request, (err: any, resp: ContractResponse) => {
+            if (err) reject(new Error(`Request failed: ${err.message}`));
+            resolve(resp);
+          });
         });
-      }
-    }
-    else if (options.asyncClient) {
+      };
+    } else if (options.asyncClient) {
       this._client = async (request: ContractRequest) => {
         const requestMerged = _.merge({}, this._requestOptions, request);
         if (options.asyncClient) {
-          if (requestMerged.method && (requestMerged.method.toLowerCase() === 'post' || requestMerged.method.toLowerCase() === 'patch' || requestMerged.method.toLowerCase() === 'put')) return (<any>options.asyncClient)[(requestMerged.method).toLowerCase()](requestMerged.url, requestMerged.body, requestMerged);
-          else return (<any>options.asyncClient)[(requestMerged.method || "get").toLowerCase()](requestMerged.url, requestMerged);
+          if (
+            requestMerged.method &&
+            (requestMerged.method.toLowerCase() === "post" ||
+              requestMerged.method.toLowerCase() === "patch" ||
+              requestMerged.method.toLowerCase() === "put")
+          )
+            return (<any>options.asyncClient)[
+              requestMerged.method.toLowerCase()
+            ](requestMerged.url, requestMerged.body, requestMerged);
+          else
+            return (<any>options.asyncClient)[
+              (requestMerged.method || "get").toLowerCase()
+            ](requestMerged.url, requestMerged);
         }
-      }
-    }
-    else {
+      };
+    } else {
       // build http transport based client
       const builder = createBuilder();
 
-      const httpTransportClient = builder.createClient()
+      const httpTransportClient = builder
+        .createClient()
         .timeout(this._requestOptions.timeout || 0)
         .headers(this._requestOptions.headers || {})
         .query(this._requestOptions.query || {})
-        .redirect('manual');
+        .redirect("manual");
 
       this._client = async function (request: ContractRequest) {
-        return (<any>httpTransportClient)[(this._request.method || "get").toLowerCase()](request.url, request.body).asResponse();
-      }
+        return (<any>httpTransportClient)
+          [(this._request.method || "get").toLowerCase()](
+            request.url,
+            request.body,
+          )
+          .asResponse();
+      };
     }
 
     this.joiOptions = _.merge({}, joiOptions, options.joiOptions || {});
@@ -216,7 +273,9 @@ export class Contract {
    * @param {*} callback a callback that contains errors if there were any. Expected to be called with no arguments if the validation succeeded.
    * @returns void
    */
-  async validate(callback: (err: any, result: ValidationResult | undefined) => void) {
+  async validate(
+    callback: (err: any, result: ValidationResult | undefined) => void,
+  ) {
     const schema = Joi.object().keys(this._response);
 
     let schemaValidationResult;
@@ -224,7 +283,7 @@ export class Contract {
     let validationResult: ValidationResult | undefined = undefined;
 
     if (this.before) {
-      if (this.before.constructor.name === 'AsyncFunction') {
+      if (this.before.constructor.name === "AsyncFunction") {
         // Promise-based before
         assertIsAsyncBeforeAfter(this.before);
 
@@ -246,9 +305,10 @@ export class Contract {
     }
 
     try {
-      const maxRetries = typeof this.retries === 'number' 
-        ? this.retries 
-        : (this.retries?.maxRetries ?? 0);
+      const maxRetries =
+        typeof this.retries === "number"
+          ? this.retries
+          : (this.retries?.maxRetries ?? 0);
       let retryCount = 0;
       let lastResponse: TransformedResponse | undefined;
 
@@ -274,26 +334,26 @@ export class Contract {
         }
 
         if (retryCount < maxRetries) {
-          if (typeof this.retries === 'object') {
+          if (typeof this.retries === "object") {
             const validationError = {
               message: schemaValidationResult.error.message,
               detail: schemaValidationResult.error.details[0].message,
               statusCode: lastResponse.statusCode,
               response: lastResponse,
-              request: this._request
+              request: this._request,
             };
 
             const shouldRetry = this.retries.handler(
               validationError,
               this._request,
-              retryCount
+              retryCount,
             );
 
             if (!shouldRetry) {
               break;
             }
 
-            if (typeof shouldRetry === 'number' && shouldRetry > 0) {
+            if (typeof shouldRetry === "number" && shouldRetry > 0) {
               await timeout(shouldRetry);
             }
           } else if (this.retryDelay > 0) {
@@ -317,7 +377,7 @@ export class Contract {
     }
 
     if (!validationError && this.after) {
-      if (this.after.constructor.name === 'AsyncFunction') {
+      if (this.after.constructor.name === "AsyncFunction") {
         // Promise-based after
         assertIsAsyncBeforeAfter(this.after);
 

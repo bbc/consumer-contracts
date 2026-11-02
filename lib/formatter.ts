@@ -20,7 +20,9 @@ function printResult(result: ValidationResultWithContext) {
   if (result.err) {
     logger.log(` ${colors.red(`${result.errIndex}) ${consumer} – ${name}`)}`);
   } else {
-    logger.log(` ${colors.green("✓")} ${colors.reset(`${consumer} – ${name}`)}`);
+    logger.log(
+      ` ${colors.green("✓")} ${colors.reset(`${consumer} – ${name}`)}`,
+    );
   }
 }
 
@@ -40,7 +42,7 @@ function printFailure(failure: ValidationFailure, i: number) {
 
 export type ValidationResult = {
   value?: TransformedResponse;
-}
+};
 
 export type ValidationResultWithContext = ValidationResult & {
   contract: Contract;
@@ -59,7 +61,7 @@ type ValidationContext = {
   totalCompleted: number;
   totalFailed: number;
   totalPassed: number;
-}
+};
 
 export function print(data: ValidationContext) {
   const failures = data.failures;
