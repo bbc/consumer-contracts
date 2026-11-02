@@ -362,7 +362,7 @@ module.exports = new Contract({
     // ...
   },
   retries: 2,
-  retryDelay: 3000 // optional, milliseconds between retries
+  retryDelay: 3000, // optional, milliseconds between retries
 });
 ```
 
@@ -384,18 +384,19 @@ module.exports = new Contract({
       // Return false to stop retrying
       // Return true to retry immediately
       // Return a number to retry after that many milliseconds
-      
+
       // Example: Retry on 202 status with exponential backoff
       if (error.statusCode === 202 && retryCount < 3) {
         return Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
       }
       return false;
-    }
-  }
+    },
+  },
 });
 ```
 
 The retry handler receives:
+
 - `error` - The error object containing:
   - `message` - Error message
   - `detail` - Detailed error information
@@ -406,6 +407,7 @@ The retry handler receives:
 - `retryCount` - Number of retries attempted so far (starting at 0)
 
 It should return:
+
 - `false` to stop retrying
 - `true` to retry immediately
 - A number to retry after that many milliseconds
